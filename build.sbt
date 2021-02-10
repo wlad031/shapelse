@@ -38,3 +38,7 @@ Test / testOptions += Tests.Argument(
 scalacOptions in (Compile, doc) ++= Seq(
   "-groups"
 )
+
+githubOwner := "wlad031"
+githubActor := "wlad031"
+githubRepository := "scala-class-metadata-collector"
