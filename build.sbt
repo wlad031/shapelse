@@ -12,6 +12,9 @@ ThisBuild / libraryDependencies ++= Seq(
   Seq(
     "com.chuusai" %% "shapeless" % "2.4.0-M1"
   ),
+  Seq(
+    "org.scalatest" %% "scalatest" % "3.2.2" % "test"
+  ),
 ).flatten
 
 ThisBuild / scalacOptions ++= Seq(
