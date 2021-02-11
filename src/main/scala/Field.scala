@@ -4,6 +4,10 @@ import scala.collection.immutable.ListMap
 
 sealed trait Field
 
+object Field {
+  def derive[A](implicit encoder: FieldEncoder[A]): Field = encoder.encode
+}
+
 sealed trait PrimitiveField extends Field
 case object BooleanField extends PrimitiveField
 case object CharField extends PrimitiveField
