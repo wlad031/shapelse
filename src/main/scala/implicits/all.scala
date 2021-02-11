@@ -1,4 +1,5 @@
 package dev.vgerasimov.scmc
 package implicits
 
-object all extends PrimitiveFieldEncoders with ComplexFieldEncoders with HListFieldEncoders with CoproductFieldEncoders
+/** Contains all needed implicits for automatic [[Field]] derivation. */
+object all extends PrimitiveFieldEncoders with GenericFieldEncoders with HListFieldEncoders with CoproductFieldEncoders

@@ -3,7 +3,8 @@ package implicits
 
 import shapeless.LabelledGeneric
 
-trait ComplexFieldEncoders {
+/** Contains implicits for [[Field]] derivation for generic types. */
+trait GenericFieldEncoders {
 
   implicit def optionFieldEncoder[A](implicit ev: FieldEncoder[A]): FieldEncoder[Option[A]] =
     FieldEncoder.instance(OptionField(ev.encode))

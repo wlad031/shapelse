@@ -6,6 +6,7 @@ import shapeless.{ :+:, CNil, Coproduct, Lazy, Witness }
 
 import scala.collection.immutable.ListMap
 
+/** Contains implicits for [[Field]] derivation for shapeless' [[Coproduct]] types. */
 trait CoproductFieldEncoders {
 
   implicit val cnilFieldEncoder: CoproductFieldEncoder[CNil] =

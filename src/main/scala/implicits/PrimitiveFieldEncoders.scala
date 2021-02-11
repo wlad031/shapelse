@@ -1,6 +1,7 @@
 package dev.vgerasimov.scmc
 package implicits
 
+/** Contains implicits for [[Field]] derivation for primitive types. */
 trait PrimitiveFieldEncoders {
   implicit val booleanFieldEncoder: PrimitiveFieldEncoder[Boolean] = PrimitiveFieldEncoder.instance(BooleanField)
   implicit val charFieldEncoder: PrimitiveFieldEncoder[Char] = PrimitiveFieldEncoder.instance(CharField)
