@@ -2,12 +2,12 @@ package dev.vgerasimov.scmc
 package implicits
 
 trait PrimitiveFieldEncoders {
-  implicit val booleanFieldEncoder: FieldEncoder[Boolean] = FieldEncoder.instance(BooleanField)
-  implicit val charFieldEncoder: FieldEncoder[Char] = FieldEncoder.instance(CharField)
-  implicit val stringFieldEncoder: FieldEncoder[String] = FieldEncoder.instance(StringField)
-  implicit val shortFieldEncoder: FieldEncoder[Short] = FieldEncoder.instance(ShortField)
-  implicit val intFieldEncoder: FieldEncoder[Int] = FieldEncoder.instance(IntField)
-  implicit val longFieldEncoder: FieldEncoder[Long] = FieldEncoder.instance(LongField)
-  implicit val floatFieldEncoder: FieldEncoder[Float] = FieldEncoder.instance(FloatField)
-  implicit val doubleFieldEncoder: FieldEncoder[Double] = FieldEncoder.instance(DoubleField)
+  implicit val booleanFieldEncoder: PrimitiveFieldEncoder[Boolean] = PrimitiveFieldEncoder.instance(BooleanField)
+  implicit val charFieldEncoder: PrimitiveFieldEncoder[Char] = PrimitiveFieldEncoder.instance(CharField)
+  implicit val stringFieldEncoder: PrimitiveFieldEncoder[String] = PrimitiveFieldEncoder.instance(StringField)
+  implicit val shortFieldEncoder: PrimitiveFieldEncoder[Short] = PrimitiveFieldEncoder.instance(ShortField)
+  implicit val intFieldEncoder: PrimitiveFieldEncoder[Int] = PrimitiveFieldEncoder.instance(IntField)
+  implicit val longFieldEncoder: PrimitiveFieldEncoder[Long] = PrimitiveFieldEncoder.instance(LongField)
+  implicit val floatFieldEncoder: PrimitiveFieldEncoder[Float] = PrimitiveFieldEncoder.instance(FloatField)
+  implicit val doubleFieldEncoder: PrimitiveFieldEncoder[Double] = PrimitiveFieldEncoder.instance(DoubleField)
 }

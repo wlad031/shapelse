@@ -8,17 +8,17 @@ import scala.collection.immutable.ListMap
 
 trait HListFieldEncoders {
 
-  implicit val hnilFieldEncoder: ObjectFieldEncoder[HNil] =
-    ObjectFieldEncoder.instance[HNil](ObjectField(ListMap()))
+  implicit val hnilFieldEncoder: ProductFieldEncoder[HNil] =
+    ProductFieldEncoder.instance[HNil](ProductField(ListMap()))
 
   implicit def hlistFieldEncoder[K <: Symbol, H, T <: HList](
     implicit
     witness: Witness.Aux[K],
     hEncoder: Lazy[FieldEncoder[H]],
-    tEncoder: ObjectFieldEncoder[T]
-  ): ObjectFieldEncoder[FieldType[K, H] :: T] = ObjectFieldEncoder.instance {
+    tEncoder: ProductFieldEncoder[T]
+  ): ProductFieldEncoder[FieldType[K, H] :: T] = ProductFieldEncoder.instance {
     val hFields = ListMap[Symbol, Field](witness.value -> hEncoder.value.encode)
-    val tFields = tEncoder.encode.fields
-    ObjectField(hFields ++ tFields)
+    val tFields = tEncoder.encode.childs
+    ProductField(hFields ++ tFields)
   }
 }
