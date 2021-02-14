@@ -6,7 +6,7 @@ import shapeless.{ ::, HList, HNil, Lazy, Witness }
 
 import scala.collection.immutable.ListMap
 
-/** Contains implicits for [[Field]] derivation for shapeless' [[HList]] types. */
+/** Contains implicits for [[Field]] derivation for shapeless' HList types. */
 trait HListFieldEncoders {
 
   implicit val hnilFieldEncoder: ProductFieldEncoder[HNil] =
