@@ -34,11 +34,6 @@ trait GenericAnnotatedFieldEncoders {
     toList: ToTraversable.Aux[ARepr, List, Option[A]]
   ): AnnotatedFieldEncoder[A, T] = AnnotatedFieldEncoder.instance {
     val repr = reprEncoder.encode
-    val childs = ListMap.from {
-      repr.childs.map({
-        case (symbol, field) => (symbol, field)
-      })
-    }
-    CoproductField(annotation(), childs)
+    CoproductField(annotation(), repr.childs)
   }
 }

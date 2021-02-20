@@ -19,7 +19,7 @@ trait CoproductFieldEncoders {
     hEncoder: Lazy[FieldEncoder[M, H]],
     tEncoder: CoproductFieldEncoder[M, T]
   ): CoproductFieldEncoder[M, FieldType[K, H] :+: T] = CoproductFieldEncoder.instance {
-    val hFields = ListMap[Symbol, Field[M]](witness.value -> hEncoder.value.encode)
+    val hFields = Map[Symbol, Field[M]](witness.value -> hEncoder.value.encode)
     val tFields = tEncoder.encode.childs
     CoproductField(Emptible.summon.empty, hFields ++ tFields)
   }

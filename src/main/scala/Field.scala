@@ -43,6 +43,6 @@ final case class ListField[M](override val meta: M, field: Field[M]) extends Fie
 final case class ProductField[M](override val meta: M, childs: ListMap[Symbol, Field[M]]) extends Field[M] {
   override def copyWithMeta(meta: M): ProductField[M] = ProductField(meta, childs)
 }
-final case class CoproductField[M](override val meta: M, childs: ListMap[Symbol, Field[M]]) extends Field[M] {
+final case class CoproductField[M](override val meta: M, childs: Map[Symbol, Field[M]]) extends Field[M] {
   override def copyWithMeta(meta: M): CoproductField[M] = CoproductField(meta, childs)
 }

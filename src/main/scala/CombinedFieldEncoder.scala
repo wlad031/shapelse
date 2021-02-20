@@ -58,13 +58,11 @@ object CombinedFieldEncoder {
               metaCombiner(meta, rightField.meta),
               rightField match {
                 case CoproductField(meta, childsR) =>
-                  ListMap.from {
-                    (childs zip childsR)
-                      .map({
-                        case ((k1, v1), (k2, v2)) => (k1, f(v1, v2))
-                      })
-                      .toMap
-                  }
+                  (childs zip childsR)
+                    .map({
+                      case ((k1, v1), (k2, v2)) => (k1, f(v1, v2))
+                    })
+                    .toMap
                 case _ => unexpected
               }
             )

@@ -37,7 +37,7 @@ val field = encoder.encode
 // Output:
 // CoproductField(
 //   None,                      <- "Animal" doesn't have "@says"
-//   ListMap(                   <- children of "Animal"
+//   Map(                       <- children of "Animal"
 //     Symbol(Cat) ->           <- name of the first child
 //       ProductField(
 //         Some(says(meow)),    <- "Cat" has "@says"
