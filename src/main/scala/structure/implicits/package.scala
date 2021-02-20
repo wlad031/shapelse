@@ -1,4 +1,5 @@
-package dev.vgerasimov.scmc
+package dev.vgerasimov.shapelse
+package structure
 
 package object implicits {
 

@@ -1,24 +1,48 @@
-package dev.vgerasimov.scmc
+package dev.vgerasimov.shapelse
 
 import scala.collection.immutable.ListMap
 
-sealed trait Field
-
-object Field {
-  def derive[A](implicit encoder: FieldEncoder[A]): Field = encoder.encode
+sealed trait Field[M] {
+  def meta: M
+  def map[M1](f: M => M1): Field[M1] = ???
+  def copyWithMeta(meta: M): Field[M]
 }
 
-sealed trait PrimitiveField extends Field
-case object BooleanField extends PrimitiveField
-case object CharField extends PrimitiveField
-case object StringField extends PrimitiveField
-case object ShortField extends PrimitiveField
-case object IntField extends PrimitiveField
-case object LongField extends PrimitiveField
-case object FloatField extends PrimitiveField
-case object DoubleField extends PrimitiveField
+sealed trait PrimitiveField[M] extends Field[M]
+case class BooleanField[M](override val meta: M) extends PrimitiveField[M] {
+  override def copyWithMeta(meta: M): BooleanField[M] = BooleanField(meta)
+}
+case class CharField[M](override val meta: M) extends PrimitiveField[M] {
+  override def copyWithMeta(meta: M): CharField[M] = CharField(meta)
+}
+case class StringField[M](override val meta: M) extends PrimitiveField[M] {
+  override def copyWithMeta(meta: M): StringField[M] = StringField(meta)
+}
+case class ShortField[M](override val meta: M) extends PrimitiveField[M] {
+  override def copyWithMeta(meta: M): ShortField[M] = ShortField(meta)
+}
+case class IntField[M](override val meta: M) extends PrimitiveField[M] {
+  override def copyWithMeta(meta: M): IntField[M] = IntField(meta)
+}
+case class LongField[M](override val meta: M) extends PrimitiveField[M] {
+  override def copyWithMeta(meta: M): LongField[M] = LongField(meta)
+}
+case class FloatField[M](override val meta: M) extends PrimitiveField[M] {
+  override def copyWithMeta(meta: M): FloatField[M] = FloatField(meta)
+}
+case class DoubleField[M](override val meta: M) extends PrimitiveField[M] {
+  override def copyWithMeta(meta: M): DoubleField[M] = DoubleField(meta)
+}
 
-final case class OptionField(field: Field) extends Field
-final case class ListField(field: Field) extends Field
-final case class ProductField(childs: ListMap[Symbol, Field]) extends Field
-final case class CoproductField(childs: ListMap[Symbol, Field]) extends Field
+final case class OptionField[M](override val meta: M, field: Field[M]) extends Field[M] {
+  override def copyWithMeta(meta: M): OptionField[M] = OptionField(meta, field)
+}
+final case class ListField[M](override val meta: M, field: Field[M]) extends Field[M] {
+  override def copyWithMeta(meta: M): ListField[M] = ListField(meta, field)
+}
+final case class ProductField[M](override val meta: M, childs: ListMap[Symbol, Field[M]]) extends Field[M] {
+  override def copyWithMeta(meta: M): ProductField[M] = ProductField(meta, childs)
+}
+final case class CoproductField[M](override val meta: M, childs: ListMap[Symbol, Field[M]]) extends Field[M] {
+  override def copyWithMeta(meta: M): CoproductField[M] = CoproductField(meta, childs)
+}
