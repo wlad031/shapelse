@@ -2,6 +2,8 @@ package dev.vgerasimov.shapelse
 package structure
 package implicits
 
+import empty.Emptible
+
 import shapeless.labelled.FieldType
 import shapeless.{ ::, HList, HNil, Lazy, Witness }
 

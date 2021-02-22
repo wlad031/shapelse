@@ -1,4 +1,5 @@
 package dev.vgerasimov.shapelse
+package empty
 
 /** Represents that some type has "empty" state. */
 trait Emptible[E] {
@@ -15,10 +16,4 @@ object Emptible {
 
   /** Summoner for the [[Emptible]] instances. */
   def summon[E](implicit ev: Emptible[E]): Emptible[E] = ev
-
-  // TODO: move to the better place
-  /** [[Emptible]] instance for the [[Option]]. */
-  implicit def emptibleOption[A]: Emptible[Option[A]] = new Emptible[Option[A]] {
-    override def empty: Option[A] = None
-  }
 }

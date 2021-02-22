@@ -1,6 +1,7 @@
 package dev.vgerasimov.shapelse
 package types
 
+import dev.vgerasimov.shapelse.empty.Empty
 import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.immutable.ListMap

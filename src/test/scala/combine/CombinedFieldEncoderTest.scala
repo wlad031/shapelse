@@ -8,9 +8,9 @@ import scala.collection.immutable.ListMap
 
 class CombinedFieldEncoderTest extends AnyFunSuite {
 
-  import Emptible.emptibleOption
   import annotations.implicits.all._
   import combine.implicits.tuples._
+  import empty.implicits.emptibleOption
   import structure.implicits.all._
 
   private case class a1() extends StaticAnnotation

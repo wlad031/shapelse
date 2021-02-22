@@ -1,6 +1,8 @@
 package dev.vgerasimov.shapelse
 package combine
 
+import empty.Empty
+
 import shapeless.=:!=
 
 object implicits {
@@ -12,10 +14,10 @@ object implicits {
 
   trait CombinersWithEmpty {
 
-    /** Omits first [[Empty]] object while combining. */
+    /** Omits first [[dev.vgerasimov.shapelse.empty.Empty]] object while combining. */
     implicit def firstEmpty[A]: Combiner[Empty, A, A] = (_: Empty, v2: A) => v2
 
-    /** Omits second [[Empty]] object while combining. */
+    /** Omits second [[dev.vgerasimov.shapelse.empty.Empty]] object while combining. */
     implicit def secondEmpty[A]: Combiner[A, Empty, A] = (v1: A, _: Empty) => v1
   }
 

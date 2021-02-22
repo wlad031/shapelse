@@ -1,5 +1,7 @@
 package dev.vgerasimov
 
+import dev.vgerasimov.shapelse.empty.Empty
+
 import scala.annotation.StaticAnnotation
 
 package object shapelse {

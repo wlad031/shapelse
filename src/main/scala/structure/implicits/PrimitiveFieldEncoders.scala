@@ -2,6 +2,8 @@ package dev.vgerasimov.shapelse
 package structure
 package implicits
 
+import empty.Emptible
+
 /** Contains implicits for [[Field]] derivation for primitive types. */
 trait PrimitiveFieldEncoders {
   implicit def booleanFieldEncoder[M : Emptible]: PrimitiveFieldEncoder[M, Boolean] =

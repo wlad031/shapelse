@@ -9,7 +9,7 @@ class PrimitiveAnnotatedFieldsDerivation extends AnyFunSuite {
 
   import annotations.implicits.all._
   import structure.implicits.all._
-  import Emptible.emptibleOption
+  import empty.implicits.emptibleOption
   
   private case class annotation() extends StaticAnnotation
 

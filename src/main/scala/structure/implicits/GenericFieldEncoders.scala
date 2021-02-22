@@ -2,6 +2,7 @@ package dev.vgerasimov.shapelse
 package structure
 package implicits
 
+import dev.vgerasimov.shapelse.empty.Emptible
 import shapeless.LabelledGeneric
 
 /** Contains implicits for [[Field]] derivation for generic types. */

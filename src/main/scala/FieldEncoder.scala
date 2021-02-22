@@ -7,7 +7,7 @@ trait FieldEncoder[M, A] {
 
   def combine[M1, MR](that: FieldEncoder[M1, A])(
     implicit metaCombiner: Combiner[M, M1, MR]
-  ): CombinedFieldEncoder[MR, A] = CombinedFieldEncoder.instance[M, M1, MR, A](this, that)
+  ): CombinedFieldEncoder[MR, A] = CombinedFieldEncoder.instance(left = this, right = that)
 }
 
 object FieldEncoder {

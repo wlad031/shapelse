@@ -1,10 +1,51 @@
 package dev.vgerasimov.shapelse
 
+import dev.vgerasimov.shapelse.empty.Empty
+
 import scala.collection.immutable.ListMap
 
+/** Represents some ADT's field whether it's a sealed trait's subtype or case class' fields.
+  *
+  * Basically, it's a typed container for some information (meta) about such fields.
+  *
+  * @tparam M the type of stored meta
+  */
 sealed trait Field[M] {
+
+  /** Returns field's metadata. */
   def meta: M
 
+  /** Returns new field with the result of applying given function on field's meta.
+    *
+    * In case if this is some complex field, for example [[ProductField]], recursively maps all it's childs.
+    *
+    * @param mapper the function to be applied on the meta
+    * @tparam MR the type of resulted meta
+    *
+    * @example {{{
+    * val field = BooleanField[Option[Int]](Some(1))
+    * val mapped = field.map(_.map(x => x + 10))
+    * // mapped: BooleanField[Option[Int]] = BooleanField(Some(11))
+    * }}}
+    *
+    * @example {{{
+    * val field = ProductField[Option[Int]](
+    *   Some(1),
+    *   Map(
+    *     Symbol("a") -> IntField[Option[Int]](Some(10)),
+    *     Symbol("b") -> StringField[Option[Int]](Some(11)),
+    *     Symbol("c") -> BooleanField[Option[Int]](None),
+    *   ))
+    * val mapped = field.map(_.map(x => x + 10))
+    * // mapped: ProductField[Option[Int]] = ProductField(
+    * //   Some(11),
+    * //   Map(
+    * //     Symbol("a") -> IntField(Some(20)),
+    * //     Symbol("b") -> StringField(Some(21)),
+    * //     Symbol("c") -> BooleanField(None),
+    * // ))
+    * }}}
+    */
   def map[MR](mapper: M => MR): Field[MR] = this match {
     case BooleanField(meta)       => BooleanField(mapper(meta))
     case CharField(meta)          => CharField(mapper(meta))
@@ -21,25 +62,47 @@ sealed trait Field[M] {
     case CoproductField(meta, childs) => CoproductField(mapper(meta), childs.view.mapValues(_.map(mapper)).toMap)
   }
 
-  def bimap[M2, MR](bimapper: (M, M2) => MR)(other: Field[M2]): Field[MR] = {
-    val mapper: M => MR = m => bimapper(m, other.meta)
+  /** Combines meta of this field and other given field using provided combiner function.
+    *
+    * @param combiner the function of two arguments to be applied on this' and other's meta
+    * @param other the field to be combined with this one
+    * @tparam M1 the type of meta of other field
+    * @tparam MR the type of resulted meta
+    *
+    * @example {{{
+    * val field1 = ProductField[Option[Int]](
+    *   Some(1),
+    *   Map(
+    *     Symbol("a") -> IntField[Option[Int]](Some(10)),
+    *     Symbol("b") -> StringField[Option[Int]](Some(11)),
+    *   ))
+    * val field2 = ProductField[Option[String]](
+    *   Some("one"),
+    *   Map(
+    *     Symbol("a") -> IntField[Option[String]](Some("ten")),
+    *     Symbol("b") -> StringField[Option[String]](Some("eleven")),
+    *   ))
+    * val makeTuple = (o1: Option[Int], o2: Option[String]) => (o1, o2)
+    * val combined = field1.combine(makeTuple)(field2)
+    * // combined: ProductField[(Option[Int], Option[String])] = ProductField(
+    * //  (Some(1), Some("one")),
+    * //  Map(
+    * //    Symbol("a") -> IntField((Some(10), Some("ten")),
+    * //    Symbol("b") -> StringField((Some(11), Some("eleven")),
+    * //  ))
+    * }}}
+    */
+  def combine[M1, MR](combiner: (M, M1) => MR)(other: Field[M1]): Field[MR] = {
+    def combineChilds(thisChilds: Map[Symbol, Field[M]], otherChilds: Map[Symbol, Field[M1]]): Map[Symbol, Field[MR]] =
+      thisChilds.map({ case (symbol, lField) => (symbol, lField.combine(combiner)(otherChilds(symbol))) })
+
+    val mapper: M => MR = m => combiner(m, other.meta)
     this match {
+      // TODO: is there a way to avoid casting?
       case ProductField(meta, childs) =>
-        ProductField(
-          bimapper(meta, other.meta),
-          ListMap.from(
-            (childs zip other.asInstanceOf[ProductField[M2]].childs)
-              .map({ case ((lSym, lField), (_, rField)) => (lSym, lField.bimap(bimapper)(rField)) })
-              .toMap
-          )
-        )
+        ProductField(mapper(meta), ListMap.from(combineChilds(childs, other.asInstanceOf[ProductField[M1]].childs)))
       case CoproductField(meta, childs) =>
-        CoproductField(
-          bimapper(meta, other.meta),
-          (childs zip other.asInstanceOf[CoproductField[M2]].childs)
-            .map({ case ((lSym, lField), (_, rField)) => (lSym, lField.bimap(bimapper)(rField)) })
-            .toMap
-        )
+        CoproductField(mapper(meta), combineChilds(childs, other.asInstanceOf[CoproductField[M1]].childs))
       case _ => this.map(mapper)
     }
   }
