@@ -1,4 +1,5 @@
 package dev.vgerasimov.shapelse
+package combine
 
 /** Represents "combine" function which is basically just a function of two arguments. */
 trait Combiner[-A, -B, +R] extends ((A, B) => R) {

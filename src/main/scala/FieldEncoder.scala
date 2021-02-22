@@ -1,5 +1,7 @@
 package dev.vgerasimov.shapelse
 
+import combine.{ CombinedFieldEncoder, Combiner }
+
 trait FieldEncoder[M, A] {
   def encode: Field[M]
 

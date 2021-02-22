@@ -1,5 +1,7 @@
 package dev.vgerasimov.shapelse
 
+import combine.Combiner
+
 /** Represents purely "empty" state. The same as "Tuple0". */
 final case class Empty()
 

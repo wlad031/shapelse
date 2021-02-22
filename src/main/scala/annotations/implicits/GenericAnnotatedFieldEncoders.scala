@@ -20,7 +20,7 @@ trait GenericAnnotatedFieldEncoders {
     val repr = reprEncoder.encode
     val childs = ListMap.from {
       (repr.childs zip annotations().toList)
-        .map({ case ((symbol, field), annotation) => (symbol, field.copyWithMeta(annotation)) })
+        .map({ case ((symbol, field), annotation) => (symbol, field.map(_ => annotation)) })
         .toMap
     }
     ProductField(annotation(), childs)
