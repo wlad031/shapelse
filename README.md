@@ -2,6 +2,7 @@
 
 [![ci](https://img.shields.io/github/workflow/status/wlad031/shapelse/Scala%20CI?label=CI&logo=GitHub&style=flat-square)](https://github.com/wlad031/shapelse/actions)
 [![codecov](https://img.shields.io/codecov/c/github/wlad031/shapelse?label=cov&logo=Codecov&style=flat-square)](https://codecov.io/gh/wlad031/shapelse)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fwlad031%2Fshapelse.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fwlad031%2Fshapelse?ref=badge_shield)
 
 Shapelse (_shape_ + _else_) is a small abstraction layer on top of [Shapeless](https://github.com/milessabin/shapeless). As an abstraction layer it has less freedom in usage but in some cases it's more convenient to use.
 
@@ -49,3 +50,6 @@ val field = encoder.encode
 //         ListMap(             <- fields of "Dog" class
 //           Symbol(name) -> StringField(None)))))
 ```
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fwlad031%2Fshapelse.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fwlad031%2Fshapelse?ref=badge_large)
