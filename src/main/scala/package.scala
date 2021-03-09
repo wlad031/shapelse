@@ -6,9 +6,9 @@ import scala.annotation.StaticAnnotation
 
 package object shapelse {
 
-  def structureFieldEncoder[A](implicit ev: FieldEncoder[Empty, A]): FieldEncoder[Empty, A] = ev
-  def annotationFieldEncoder[Ann <: StaticAnnotation, A](
-    implicit ev: FieldEncoder[Option[Ann], A]
-  ): FieldEncoder[Option[Ann], A] = ev
+  def structureSchemaEncoder[A](implicit ev: SchemaEncoder[Empty, A]): SchemaEncoder[Empty, A] = ev
+  def annotationSchemaEncoder[Ann <: StaticAnnotation, A](
+    implicit ev: SchemaEncoder[Option[Ann], A]
+  ): SchemaEncoder[Option[Ann], A] = ev
 
 }

@@ -1,13 +1,13 @@
 package dev.vgerasimov.shapelse
 package annotations
 
-import structure.implicits.{ CoproductFieldEncoders, HListFieldEncoders, PrimitiveFieldEncoders }
+import structure.implicits.{ CoproductSchemaEncoders, HListSchemaEncoders, PrimitiveSchemaEncoders }
 
 package object implicits {
 
   object all
-//      extends PrimitiveFieldEncoders
-      extends GenericAnnotatedFieldEncoders
-//      with HListFieldEncoders
-//      with CoproductFieldEncoders
+//      extends PrimitiveSchemaEncoders
+      extends GenericAnnotatedSchemaEncoders
+//      with HListSchemaEncoders
+//      with CoproductSchemaEncoders
 }

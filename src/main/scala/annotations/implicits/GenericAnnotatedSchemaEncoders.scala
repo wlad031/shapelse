@@ -7,33 +7,33 @@ import shapeless.{ Annotation, Annotations, Coproduct, HList, LabelledGeneric }
 
 import scala.collection.immutable.ListMap
 
-trait GenericAnnotatedFieldEncoders {
+trait GenericAnnotatedSchemaEncoders {
 
   implicit def genericProductEncoder[A, T, ARepr <: HList, TRepr <: HList](
     implicit
     gen: LabelledGeneric.Aux[T, TRepr],
-    reprEncoder: ProductFieldEncoder[Option[A], TRepr],
+    reprEncoder: ProductSchemaEncoder[Option[A], TRepr],
     annotation: Annotation[Option[A], T],
     annotations: Annotations.Aux[A, T, ARepr],
     toList: ToTraversable.Aux[ARepr, List, Option[A]]
-  ): AnnotatedFieldEncoder[A, T] = AnnotatedFieldEncoder.instance {
+  ): AnnotatedSchemaEncoder[A, T] = AnnotatedSchemaEncoder.instance {
     val repr = reprEncoder.encode
     val childs = ListMap.from {
       (repr.childs zip annotations().toList)
-        .map({ case ((symbol, field), annotation) => (symbol, field.map(_ => annotation)) })
+        .map({ case ((symbol, schema), annotation) => (symbol, schema.map(_ => annotation)) })
         .toMap
     }
-    ProductField(annotation(), childs)
+    ProductSchema(annotation(), childs)
   }
 
   implicit def genericCoproductEncoder[A, T, ARepr <: HList, TRepr <: Coproduct](
     implicit
     gen: LabelledGeneric.Aux[T, TRepr],
-    reprEncoder: CoproductFieldEncoder[Option[A], TRepr],
+    reprEncoder: CoproductSchemaEncoder[Option[A], TRepr],
     annotation: Annotation[Option[A], T],
     toList: ToTraversable.Aux[ARepr, List, Option[A]]
-  ): AnnotatedFieldEncoder[A, T] = AnnotatedFieldEncoder.instance {
+  ): AnnotatedSchemaEncoder[A, T] = AnnotatedSchemaEncoder.instance {
     val repr = reprEncoder.encode
-    CoproductField(annotation(), repr.childs)
+    CoproductSchema(annotation(), repr.childs)
   }
 }
