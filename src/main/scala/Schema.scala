@@ -91,15 +91,13 @@ sealed trait Schema[M] {
     * }}}
     */
   def combine[M1, MR](combiner: (M, M1) => MR)(other: Schema[M1]): Schema[MR] = {
+    val mapper: M => MR = m => combiner(m, other.meta)
     def combineChilds(
       thisChilds: Map[Symbol, Schema[M]],
       otherChilds: Map[Symbol, Schema[M1]]
-    ): Map[Symbol, Schema[MR]] =
-      thisChilds.map({ case (symbol, lSchema) => (symbol, lSchema.combine(combiner)(otherChilds(symbol))) })
+    ) = thisChilds.map({ case (symbol, lSchema) => (symbol, lSchema.combine(combiner)(otherChilds(symbol))) })
 
-    val mapper: M => MR = m => combiner(m, other.meta)
     this match {
-      // TODO: is there a way to avoid casting?
       case ProductSchema(meta, childs) =>
         ProductSchema(mapper(meta), ListMap.from(combineChilds(childs, other.asInstanceOf[ProductSchema[M1]].childs)))
       case CoproductSchema(meta, childs) =>
@@ -111,42 +109,42 @@ sealed trait Schema[M] {
 
 sealed trait PrimitiveSchema[M] extends Schema[M]
 
-case class BooleanSchema[M](override val meta: M) extends PrimitiveSchema[M]
+final case class BooleanSchema[M](override val meta: M) extends PrimitiveSchema[M]
 object BooleanSchema {
   def empty: BooleanSchema[Empty] = BooleanSchema(Empty())
 }
 
-case class CharSchema[M](override val meta: M) extends PrimitiveSchema[M]
+final case class CharSchema[M](override val meta: M) extends PrimitiveSchema[M]
 object CharSchema {
   def empty: CharSchema[Empty] = CharSchema(Empty())
 }
 
-case class StringSchema[M](override val meta: M) extends PrimitiveSchema[M]
+final case class StringSchema[M](override val meta: M) extends PrimitiveSchema[M]
 object StringSchema {
   def empty: StringSchema[Empty] = StringSchema(Empty())
 }
 
-case class ShortSchema[M](override val meta: M) extends PrimitiveSchema[M]
+final case class ShortSchema[M](override val meta: M) extends PrimitiveSchema[M]
 object ShortSchema {
   def empty: ShortSchema[Empty] = ShortSchema(Empty())
 }
 
-case class IntSchema[M](override val meta: M) extends PrimitiveSchema[M]
+final case class IntSchema[M](override val meta: M) extends PrimitiveSchema[M]
 object IntSchema {
   def empty: IntSchema[Empty] = IntSchema(Empty())
 }
 
-case class LongSchema[M](override val meta: M) extends PrimitiveSchema[M]
+final case class LongSchema[M](override val meta: M) extends PrimitiveSchema[M]
 object LongSchema {
   def empty: LongSchema[Empty] = LongSchema(Empty())
 }
 
-case class FloatSchema[M](override val meta: M) extends PrimitiveSchema[M]
+final case class FloatSchema[M](override val meta: M) extends PrimitiveSchema[M]
 object FloatSchema {
   def empty: FloatSchema[Empty] = FloatSchema(Empty())
 }
 
-case class DoubleSchema[M](override val meta: M) extends PrimitiveSchema[M]
+final case class DoubleSchema[M](override val meta: M) extends PrimitiveSchema[M]
 object DoubleSchema {
   def empty: DoubleSchema[Empty] = DoubleSchema(Empty())
 }

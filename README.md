@@ -2,14 +2,24 @@
 
 [![build](https://img.shields.io/github/workflow/status/wlad031/shapelse/Scala%20CI?label=build&logo=GitHub&style=flat-square)](https://github.com/wlad031/shapelse/actions)
 [![codecov](https://img.shields.io/codecov/c/github/wlad031/shapelse?label=codecov&logo=Codecov&style=flat-square)](https://codecov.io/gh/wlad031/shapelse)
+![latest](https://img.shields.io/github/v/tag/wlad031/shapelse?label=latest&style=flat-square)
 
 > If you were looking for *Shapeless*, here is the [link](https://github.com/milessabin/shapeless).
 
 Shapelse (_shape_ + _else_) is a small abstraction layer on top of [Shapeless](https://github.com/milessabin/shapeless).
 As an abstraction layer it has less freedom in usage but in some cases it's more convenient to use.
 
-Shapelse allows deriving strictly defined *Schema* for your
+Shapelse allows deriving strictly defined *Schema*s for your
 ADTs ([what are ADTs?](https://alvinalexander.com/scala/fp-book/algebraic-data-types-adts-in-scala/)).
+
+> *Why?* Originally, I needed to implement automatic derivation for [Json Schema](https://json-schema.org/) encoders. But then I realized that similar structure can be used in different cases, for example, if you need print your data in table view with pretty column titles. That's why it was extracted into this library.
+
+## What is *Schema*?
+
+*Schema* is a simple algebraic data type:
+
+![schema](/docs/images/schema-adt.png?raw=true)
+
 
 ## Example
 
@@ -19,9 +29,7 @@ Let's say, you have the following annotation and ADT:
 case class says(s: String) extends StaticAnnotation
 
 sealed trait Animal
-
 @says("oof") case class Dog(name: String) extends Animal
-
 @says("meow") case class Cat(name: String) extends Animal
 
 ```
