@@ -1,51 +1,70 @@
 # Shapelse
 
-[![ci](https://img.shields.io/github/workflow/status/wlad031/shapelse/Scala%20CI?label=CI&logo=GitHub&style=flat-square)](https://github.com/wlad031/shapelse/actions)
-[![codecov](https://img.shields.io/codecov/c/github/wlad031/shapelse?label=cov&logo=Codecov&style=flat-square)](https://codecov.io/gh/wlad031/shapelse)
+[![build](https://img.shields.io/github/workflow/status/wlad031/shapelse/Scala%20CI?label=build&logo=GitHub&style=flat-square)](https://github.com/wlad031/shapelse/actions)
+[![codecov](https://img.shields.io/codecov/c/github/wlad031/shapelse?label=codecov&logo=Codecov&style=flat-square)](https://codecov.io/gh/wlad031/shapelse)
+![latest](https://img.shields.io/github/v/tag/wlad031/shapelse?label=latest&style=flat-square)
 
-Shapelse (_shape_ + _else_) is a small abstraction layer on top of [Shapeless](https://github.com/milessabin/shapeless). As an abstraction layer it has less freedom in usage but in some cases it's more convenient to use.
+> If you were looking for *Shapeless*, here is the [link](https://github.com/milessabin/shapeless).
 
-Shapelse allows deriving strictly defined *Schema*, or *Field*, for your ADTs ([what are ADTs?](https://alvinalexander.com/scala/fp-book/algebraic-data-types-adts-in-scala/)).
+Shapelse (_shape_ + _else_) is a small abstraction layer on top of [Shapeless](https://github.com/milessabin/shapeless).
+As an abstraction layer it has less freedom in usage but in some cases it's more convenient to use.
+
+Shapelse allows deriving strictly defined *Schema*s for your
+ADTs ([what are ADTs?](https://alvinalexander.com/scala/fp-book/algebraic-data-types-adts-in-scala/)).
+
+> *Why?* Originally, I needed to implement automatic derivation for [Json Schema](https://json-schema.org/) encoders. But then I realized that similar structure can be used in different cases, for example, if you need print your data in table view with pretty column titles. That's why it was extracted into this library.
+
+## What is *Schema*?
+
+*Schema* is a simple algebraic data type:
+
+![schema](/docs/images/schema-adt.png?raw=true)
+
 
 ## Example
 
 Let's say, you have the following annotation and ADT:
+
 ```scala
 case class says(s: String) extends StaticAnnotation
 
 sealed trait Animal
 @says("oof") case class Dog(name: String) extends Animal
 @says("meow") case class Cat(name: String) extends Animal
+
 ```
 
 First, import implicits:
+
 ```scala 
 import dev.vgerasimov.shapelse.annotations.implicits.all._
 import dev.vgerasimov.shapelse.structure.implicits.all._
 ```
 
 Now you are able to build your encoder:
+
 ```scala
- val encoder = structureFieldEncoder[Animal]
-    .combine(annotationFieldEncoder[says, Animal])
+val encoder = structureSchemaEncoder[Animal]
+  .combine(annotationSchemaEncoder[says, Animal])
 ```
 
-Get your `Field`:
+Get your `Schema`:
+
 ```scala
-val field = encoder.encode
+val schema = encoder.encode
 
 // Output:
-// CoproductField(
+// CoproductSchema(
 //   None,                      <- "Animal" doesn't have "@says"
 //   Map(                       <- children of "Animal"
 //     Symbol(Cat) ->           <- name of the first child
-//       ProductField(
+//       ProductSchema(
 //         Some(says(meow)),    <- "Cat" has "@says"
-//         ListMap(             <- fields of "Cat" class
-//           Symbol(name) -> StringField(None))), 
+//         ListMap(             <- schemas of "Cat" class
+//           Symbol(name) -> StringSchema(None))),
 //     Symbol(Dog) ->           <- name of the second child
-//       ProductField(
-//         Some(says(oof)),     <- "Dog" has "@says" 
-//         ListMap(             <- fields of "Dog" class
-//           Symbol(name) -> StringField(None)))))
+//       ProductSchema(
+//         Some(says(oof)),     <- "Dog" has "@says"
+//         ListMap(             <- schemas of "Dog" class
+//           Symbol(name) -> StringSchema(None)))))
 ```

@@ -3,13 +3,13 @@ package structure
 
 package object implicits {
 
-  /** Contains all needed implicits for automatic [[Field]] derivation. */
+  /** Contains all needed implicits for automatic [[Schema]] derivation. */
   object all
-      extends PrimitiveFieldEncoders
-      with GenericFieldEncoders
-      with HListFieldEncoders
-      with CoproductFieldEncoders
+      extends PrimitiveSchemaEncoders
+      with GenericSchemaEncoders
+      with HListSchemaEncoders
+      with CoproductSchemaEncoders
 
-  /** Contains implicits for [[Field]] derivation for primitive types. */
-  object primitives extends PrimitiveFieldEncoders
+  /** Contains implicits for [[Schema]] derivation for primitive types. */
+  object primitives extends PrimitiveSchemaEncoders
 }
