@@ -48,6 +48,7 @@ sealed trait Schema[M] {
     case BooleanSchema(meta)        => BooleanSchema(mapper(meta))
     case CharSchema(meta)           => CharSchema(mapper(meta))
     case StringSchema(meta)         => StringSchema(mapper(meta))
+    case ByteSchema(meta)           => ByteSchema(mapper(meta))
     case ShortSchema(meta)          => ShortSchema(mapper(meta))
     case IntSchema(meta)            => IntSchema(mapper(meta))
     case LongSchema(meta)           => LongSchema(mapper(meta))
@@ -122,6 +123,11 @@ object CharSchema {
 final case class StringSchema[M](override val meta: M) extends PrimitiveSchema[M]
 object StringSchema {
   def empty: StringSchema[Empty] = StringSchema(Empty())
+}
+
+final case class ByteSchema[M](override val meta: M) extends PrimitiveSchema[M]
+object ByteSchema {
+  def empty: ByteSchema[Empty] = ByteSchema(Empty())
 }
 
 final case class ShortSchema[M](override val meta: M) extends PrimitiveSchema[M]

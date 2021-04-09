@@ -19,6 +19,10 @@ class PrimitiveSchemaDerivation extends AnyFunSuite {
     assert(structureSchemaEncoder[String].encode === StringSchema.empty)
   }
 
+  test("Byte schema should be derivable") {
+    assert(structureSchemaEncoder[Byte].encode === ByteSchema.empty)
+  }
+
   test("Short schema should be derivable") {
     assert(structureSchemaEncoder[Short].encode === ShortSchema.empty)
   }

@@ -25,6 +25,10 @@ class PrimitiveAnnotatedSchemaDerivation extends AnyFunSuite {
     assert(annotationSchemaEncoder[annotation, String].encode === StringSchema[Option[annotation]](None))
   }
 
+  test("Byte annotated schema should be derivable") {
+    assert(annotationSchemaEncoder[annotation, Byte].encode === ByteSchema[Option[annotation]](None))
+  }
+
   test("Short annotated schema should be derivable") {
     assert(annotationSchemaEncoder[annotation, Short].encode === ShortSchema[Option[annotation]](None))
   }

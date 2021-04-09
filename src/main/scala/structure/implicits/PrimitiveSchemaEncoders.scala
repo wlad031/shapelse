@@ -12,6 +12,8 @@ trait PrimitiveSchemaEncoders {
     PrimitiveSchemaEncoder.instance(CharSchema(Emptible.summon.empty))
   implicit def stringSchemaEncoder[M : Emptible]: PrimitiveSchemaEncoder[M, String] =
     PrimitiveSchemaEncoder.instance(StringSchema(Emptible.summon.empty))
+  implicit def byteSchemaEncoder[M : Emptible]: PrimitiveSchemaEncoder[M, Byte] =
+    PrimitiveSchemaEncoder.instance(ShortSchema(Emptible.summon.empty))
   implicit def shortSchemaEncoder[M : Emptible]: PrimitiveSchemaEncoder[M, Short] =
     PrimitiveSchemaEncoder.instance(ShortSchema(Emptible.summon.empty))
   implicit def intSchemaEncoder[M : Emptible]: PrimitiveSchemaEncoder[M, Int] =
