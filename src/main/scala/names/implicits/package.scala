@@ -1,15 +1,15 @@
 package dev.vgerasimov.shapelse
-package structure
+package names
 
 package object implicits {
 
   /** Contains all needed implicits for automatic [[Schema]] derivation. */
   object all
-      extends PrimitiveSchemaEncoders
-      with GenericSchemaEncoders
-      with HListSchemaEncoders
-      with CoproductSchemaEncoders
+      extends PrimitiveNamesSchemaEncoders
+      with GenericNamesSchemaEncoders
+      with HListNamesSchemaEncoders
+      with CoproductNamesSchemaEncoders
 
   /** Contains implicits for [[Schema]] derivation for primitive types. */
-  object primitives extends PrimitiveSchemaEncoders
+  object primitives extends PrimitiveNamesSchemaEncoders
 }
