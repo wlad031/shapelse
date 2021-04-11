@@ -1,7 +1,7 @@
 package dev.vgerasimov.shapelse
 package annotations
 
-import structure.implicits.{ CoproductSchemaEncoders, HListSchemaEncoders, PrimitiveSchemaEncoders }
+import names.implicits.PrimitiveNamesSchemaEncoders
 
 package object implicits {
 

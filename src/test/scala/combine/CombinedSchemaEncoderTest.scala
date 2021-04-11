@@ -4,14 +4,12 @@ package combine
 import org.scalatest.funsuite.AnyFunSuite
 
 import scala.annotation.StaticAnnotation
-import scala.collection.immutable.ListMap
 
 class CombinedSchemaEncoderTest extends AnyFunSuite {
-
+/*
   import annotations.implicits.all._
   import combine.implicits.tuples._
-  import empty.implicits.emptibleOption
-  import structure.implicits.all._
+  import names.implicits.all._
 
   private case class a1() extends StaticAnnotation
   private case class a2() extends StaticAnnotation
@@ -34,9 +32,9 @@ class CombinedSchemaEncoderTest extends AnyFunSuite {
     assert(
       schema === ProductSchema(
           (Some(a1()), Some(a2())),
-          ListMap[Symbol, Schema[(Option[a1], Option[a2])]](
-            Symbol("i") -> IntSchema((Some(a1()), None)),
-            Symbol("s") -> StringSchema((Some(a1()), Some(a2())))
+          List(
+            IntSchema((Some(a1()), None)),
+            StringSchema((Some(a1()), Some(a2())))
           )
         )
     )
@@ -54,11 +52,12 @@ class CombinedSchemaEncoderTest extends AnyFunSuite {
     assert(
       schema === CoproductSchema(
           (Some(a1()), Some(a2())),
-          ListMap[Symbol, Schema[(Option[a1], Option[a2])]](
-            Symbol("A") -> ProductSchema((Some(a1()), None), ListMap()),
-            Symbol("B") -> ProductSchema((Some(a1()), Some(a2())), ListMap())
+          List(
+            ProductSchema((Some(a1()), None), List()),
+            ProductSchema((Some(a1()), Some(a2())), List())
           )
         )
     )
   }
+ */
 }
