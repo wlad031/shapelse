@@ -9,8 +9,11 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.chuusai"   %% "shapeless" % "2.4.0-M1",
-  "org.scalatest" %% "scalatest" % "3.2.2" % "test"
+  "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+  "com.chuusai"    %% "shapeless"    % "2.4.0-M1",
+  // TODO: get rid of this dep
+  "com.lihaoyi"    %% "fansi"        % "0.2.10",
+  "org.scalatest"  %% "scalatest"    % "3.2.2" % "test"
 )
 
 scalacOptions ++= Seq(
