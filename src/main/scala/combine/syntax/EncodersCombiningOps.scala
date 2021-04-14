@@ -1,6 +1,6 @@
 package dev.vgerasimov.shapelse
 package combine
-package implicits
+package syntax
 
 import dev.vgerasimov.shapelse.empty.Emptible
 

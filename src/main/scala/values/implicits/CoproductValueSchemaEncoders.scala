@@ -22,13 +22,14 @@ trait CoproductValueSchemaEncoders {
     tEncoder: CoproductValueSchemaEncoder[T]
   ): CoproductValueSchemaEncoder[FieldType[K, H] :+: T] =
     instance((a: FieldType[K, H] :+: T) => {
+      val childs = a match {
+        case Inl(h) =>
+          hEncoder.value.encode(h) :: (0 until toInt()).map(_ => ProductSchema(NilValue: Value, List())).toList
+        case Inr(t) => ProductSchema(NilValue: Value, List()) :: tEncoder.encode(t).childs
+      }
       CoproductSchema(
-        CoproductValue,
-        a match {
-          case Inl(h) =>
-            hEncoder.value.encode(h) :: (0 until toInt()).map(_ => ProductSchema(NilValue: Value, List())).toList
-          case Inr(t) => ProductSchema(NilValue: Value, List()) :: tEncoder.encode(t).childs
-        }
+        NilValue,
+        childs
       )
     })
 }

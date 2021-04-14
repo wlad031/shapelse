@@ -125,23 +125,28 @@ final case class DoubleSchema[M](override val meta: M) extends PrimitiveSchema[M
 
 //region Composite schemas
 
-final case class OptionSchema[M](override val meta: M, schema: Schema[M]) extends Schema[M] {
+final case class OptionSchema[M](override val meta: M, child: Option[Schema[M]]) extends Schema[M] {
   override private[shapelse] def empty[M1](implicit e: Emptible[M1]): OptionSchema[M1] =
-    OptionSchema(e.empty, schema.empty)
-  override def map[MR](mapper: M => MR): OptionSchema[MR] = OptionSchema(mapper(meta), schema.map(mapper))
-  override private[shapelse] def mapMetaOnly[MR](mapper: M => M): OptionSchema[M] = OptionSchema(mapper(meta), schema)
+    OptionSchema(e.empty, child.map(_.empty))
+  override def map[MR](mapper: M => MR): OptionSchema[MR] = OptionSchema(mapper(meta), child.map(_.map(mapper)))
+  override private[shapelse] def mapMetaOnly[MR](mapper: M => M): OptionSchema[M] = OptionSchema(mapper(meta), child)
   private[shapelse] def combine[M1, MR](
     other: OptionSchema[M1]
-  )(implicit combiner: Combiner[M, M1, MR]): OptionSchema[MR] =
-    map(m => combiner(m, other.meta))
+  )(implicit combiner: Combiner[M, M1, MR]): OptionSchema[MR] = map(m => combiner(m, other.meta))
 }
 
-final case class ListSchema[M](override val meta: M, schema: Schema[M]) extends Schema[M] {
-  override private[shapelse] def empty[M1](implicit e: Emptible[M1]): ListSchema[M1] = ListSchema(e.empty, schema.empty)
-  override def map[MR](mapper: M => MR): ListSchema[MR] = ListSchema(mapper(meta), schema.map(mapper))
-  override private[shapelse] def mapMetaOnly[MR](mapper: M => M): ListSchema[M] = ListSchema(mapper(meta), schema)
-  private[shapelse] def combine[M1, MR](other: ListSchema[M1])(implicit combiner: Combiner[M, M1, MR]): ListSchema[MR] =
-    map(m => combiner(m, other.meta))
+final case class ListSchema[M](override val meta: M, childs: List[Schema[M]]) extends Schema[M] {
+  override private[shapelse] def empty[M1](implicit e: Emptible[M1]): ListSchema[M1] =
+    ListSchema(e.empty, childs.map(_.empty))
+  override def map[MR](mapper: M => MR): ListSchema[MR] = ListSchema(mapper(meta), childs.map(_.map(mapper)))
+  override private[shapelse] def mapMetaOnly[MR](mapper: M => M): ListSchema[M] = ListSchema(mapper(meta), childs)
+  private[shapelse] def combine[M1, MR](other: ListSchema[M1])(
+    implicit
+    combiner: Combiner[M, M1, MR]
+  ): ListSchema[MR] = ListSchema(
+    combiner(meta, other.meta),
+    Schema.combineChilds(childs, other.childs)(combiner, Emptible(childs.head.meta), Emptible(other.childs.head.meta))
+  )
 }
 
 final case class ProductSchema[M](override val meta: M, childs: List[Schema[M]]) extends Schema[M] {
@@ -155,11 +160,10 @@ final case class ProductSchema[M](override val meta: M, childs: List[Schema[M]])
     combiner: Combiner[M, M1, MR],
     e1: Emptible[M],
     e2: Emptible[M1]
-  ): ProductSchema[MR] =
-    ProductSchema(
-      combiner(this.meta, other.meta),
-      Schema.combineChilds(this.childs, other.childs)
-    )
+  ): ProductSchema[MR] = ProductSchema(
+    combiner(this.meta, other.meta),
+    Schema.combineChilds(this.childs, other.childs)
+  )
 }
 
 final case class CoproductSchema[M](override val meta: M, childs: List[Schema[M]]) extends Schema[M] {
@@ -177,11 +181,10 @@ final case class CoproductSchema[M](override val meta: M, childs: List[Schema[M]
     combiner: Combiner[M, M1, MR],
     e1: Emptible[M],
     e2: Emptible[M1]
-  ): CoproductSchema[MR] =
-    CoproductSchema(
-      combiner(this.meta, other.meta),
-      Schema.combineChilds(this.childs, other.childs)
-    )
+  ): CoproductSchema[MR] = CoproductSchema(
+    combiner(this.meta, other.meta),
+    Schema.combineChilds(this.childs, other.childs)
+  )
 }
 
 //endregion

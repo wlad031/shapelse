@@ -8,4 +8,6 @@ package object implicits {
       with GenericEmptySchemaEncoders
       with HListEmptySchemaEncoders
       with CoproductEmptySchemaEncoders
+
+  object primitives extends PrimitiveEmptySchemaEncoders
 }

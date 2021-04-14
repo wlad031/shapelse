@@ -13,5 +13,6 @@ final case class IntValue(value: Int) extends Value
 final case class LongValue(value: Long) extends Value
 final case class FloatValue(value: Float) extends Value
 final case class DoubleValue(value: Double) extends Value
+case object ListValue extends Value
 case object ProductValue extends Value
 case object CoproductValue extends Value

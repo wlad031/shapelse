@@ -18,6 +18,7 @@ trait HListValueSchemaEncoders {
     tEncoder: ProductValueSchemaEncoder[T]
   ): ProductValueSchemaEncoder[FieldType[K, H] :: T] =
     instance((a: FieldType[K, H] :: T) => {
-      ProductSchema(ProductValue, hEncoder.value.encode(a.head) :: tEncoder.encode(a.tail).childs)
+      val childs = hEncoder.value.encode(a.head) :: tEncoder.encode(a.tail).childs
+      ProductSchema(NilValue, childs)
     })
 }

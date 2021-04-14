@@ -2,7 +2,7 @@ package dev.vgerasimov.shapelse
 package names
 package implicits
 
-import shapeless.{LabelledGeneric, Lazy}
+import shapeless.{ LabelledGeneric, Lazy }
 
 /** Contains implicits for [[Schema]] derivation for generic types. */
 trait GenericNamesSchemaEncoders {
@@ -10,18 +10,18 @@ trait GenericNamesSchemaEncoders {
 
   implicit def optionNameSchemaEncoder[A](
     implicit
-    encoder: NameSchemaEncoder[A]
+    encoder: Lazy[NameSchemaEncoder[A]]
   ): NameSchemaEncoder[Option[A]] = {
-    val schema = encoder.encode
-    instance(OptionSchema(schema.meta, schema))
+    val schema = encoder.value.encode
+    instance(OptionSchema(schema.meta, Some(schema)))
   }
 
-  implicit def seqNameSchemaEncoder[A](
+  implicit def listNameSchemaEncoder[A](
     implicit
     encoder: Lazy[NameSchemaEncoder[A]]
   ): NameSchemaEncoder[List[A]] = {
     val schema = encoder.value.encode
-    instance(ListSchema(schema.meta, schema))
+    instance(ListSchema(schema.meta, List(schema)))
   }
 
   implicit def genericNameSchemaEncoder[A, Repr](

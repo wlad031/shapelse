@@ -1,63 +1,63 @@
 package dev.vgerasimov.shapelse
 package combine
 
+import org.scalacheck.{ Arbitrary, ScalacheckShapeless }
 import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-import scala.annotation.StaticAnnotation
+//noinspection TypeAnnotation
+class CombinedSchemaEncoderTest
+    extends AnyFunSuite
+    with Matchers
+    with ScalaCheckPropertyChecks
+    with ScalacheckShapeless {
 
-class CombinedSchemaEncoderTest extends AnyFunSuite {
-/*
-  import annotations.implicits.all._
   import combine.implicits.tuples._
+  import combine.syntax._
+  import dev.vgerasimov.shapelse.empty.instances._
   import names.implicits.all._
+  import typenames.implicits.all._
 
-  private case class a1() extends StaticAnnotation
-  private case class a2() extends StaticAnnotation
-
-  test("Combining of two encoders providing boolean schemas should be successful") {
-    val enc1 = annotationSchemaEncoder[a1, Boolean]
-    val enc2 = annotationSchemaEncoder[a2, Boolean]
-    val enc = enc1.combine(enc2)
-    val schema = enc.encode
-    assert(schema === BooleanSchema((None, None)))
-  }
-
-  test("Combining of two encoders providing product schema with primitives only should be successful") {
-    @a1() @a2() case class C(@a1() i: Int, @a1() @a2() s: String)
-
-    val enc1 = annotationSchemaEncoder[a1, C]
-    val enc2 = annotationSchemaEncoder[a2, C]
-    val enc = enc1.combine(enc2)
-    val schema = enc.encode
-    assert(
-      schema === ProductSchema(
-          (Some(a1()), Some(a2())),
-          List(
-            IntSchema((Some(a1()), None)),
-            StringSchema((Some(a1()), Some(a2())))
-          )
+  test("Combining of name and type name encoders providing product schema with primitives only should be successful") {
+    case class C(f: Float, c: Char, l: Long)
+    implicit val arbitrary = implicitly[Arbitrary[C]]
+    val encoder = namesSchemaEncoder[C].combine(typeNamesSchemaEncoder[C])
+    val expected =
+      ProductSchema(
+        ("", "C"),
+        List(
+          FloatSchema("f", "Float"),
+          CharSchema("c", "Char"),
+          LongSchema("l", "Long")
         )
-    )
+      )
+    encoder.encode shouldBe expected
+    forAll { (a: C) => encoder.encode(a) shouldBe expected }
   }
 
-  test("Combining of two encoders providing coproduct schema should be successful") {
-    @a1() @a2() sealed trait T
-    @a1() case class A() extends T
-    @a1() @a2() case class B() extends T
-
-    val enc1 = annotationSchemaEncoder[a1, T]
-    val enc2 = annotationSchemaEncoder[a2, T]
-    val enc = enc1.combine(enc2)
-    val schema = enc.encode
-    assert(
-      schema === CoproductSchema(
-          (Some(a1()), Some(a2())),
-          List(
-            ProductSchema((Some(a1()), None), List()),
-            ProductSchema((Some(a1()), Some(a2())), List())
-          )
+  test("Combining of name and type name encoders providing product schema should be successful") {
+    case class C1(f: Float, c: Char, l: Long)
+    case class C(s: String, inner: C1, d: Double)
+    implicit val arbitrary = implicitly[Arbitrary[C]]
+    val encoder = namesSchemaEncoder[C].combine(typeNamesSchemaEncoder[C])
+    val expected =
+      ProductSchema(
+        ("", "C"),
+        List(
+          StringSchema("s", "String"),
+          ProductSchema(
+            ("inner", "C1"),
+            List(
+              FloatSchema("f", "Float"),
+              CharSchema("c", "Char"),
+              LongSchema("l", "Long")
+            )
+          ),
+          DoubleSchema("d", "Double")
         )
-    )
+      )
+    encoder.encode shouldBe expected
+    forAll { (a: C) => encoder.encode(a) shouldBe expected }
   }
- */
 }

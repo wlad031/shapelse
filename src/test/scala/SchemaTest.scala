@@ -1,6 +1,8 @@
 package dev.vgerasimov.shapelse
 
+import dev.vgerasimov.shapelse.combine.Combiner
 import org.scalatest.funsuite.AnyFunSuite
+import empty.instances._
 
 class SchemaTest extends AnyFunSuite {
 
@@ -53,15 +55,15 @@ class SchemaTest extends AnyFunSuite {
   }
 
   test("Map on option schema should be successful") {
-    val schema = OptionSchema(Some(0), DoubleSchema(Some(1)))
+    val schema = OptionSchema(Some(0), Some(DoubleSchema(Some(1))))
     val mapped = schema.map(_.map(x => x + 10))
-    assert(mapped === OptionSchema(Some(10), DoubleSchema(Some(11))))
+    assert(mapped === OptionSchema(Some(10), Some(DoubleSchema(Some(11)))))
   }
 
   test("Map on list schema should be successful") {
-    val schema = ListSchema(Some(0), DoubleSchema(Some(1)))
+    val schema = ListSchema(Some(0), List(DoubleSchema(Some(1))))
     val mapped = schema.map(_.map(x => x + 10))
-    assert(mapped === ListSchema(Some(10), DoubleSchema(Some(11))))
+    assert(mapped === ListSchema(Some(10), List(DoubleSchema(Some(11)))))
   }
 
   test("Map on product schema containing primitives only should be successful") {
@@ -85,7 +87,7 @@ class SchemaTest extends AnyFunSuite {
         )
     )
   }
-/*
+
   test("Combine on product schemas containing primitives only should be successful") {
     val schema1 = ProductSchema(
       Some(1),
@@ -101,8 +103,9 @@ class SchemaTest extends AnyFunSuite {
         StringSchema[Option[String]](Some("eleven"))
       )
     )
-    val makeTuple = (o1: Option[Int], o2: Option[String]) => (o1, o2)
-    val combined = schema1.combine(makeTuple)(schema2)
+    implicit val makeTuple: Combiner[Option[Int], Option[String], (Option[Int], Option[String])] =
+      (o1: Option[Int], o2: Option[String]) => (o1, o2)
+    val combined = schema1.combine(schema2)
     assert(
       combined === ProductSchema(
           (Some(1), Some("one")),
@@ -118,8 +121,8 @@ class SchemaTest extends AnyFunSuite {
     val schema1 = CoproductSchema(
       Some(1),
       List(
-        ProductSchema(Some(10), List()),
-        ProductSchema(Some(11), List())
+        ProductSchema[Option[Int]](Some(10), List()),
+        ProductSchema[Option[Int]](Some(11), List())
       )
     )
     val schema2 = CoproductSchema[Option[String]](
@@ -129,8 +132,9 @@ class SchemaTest extends AnyFunSuite {
         ProductSchema[Option[String]](Some("eleven"), List())
       )
     )
-    val makeTuple = (o1: Option[Int], o2: Option[String]) => (o1, o2)
-    val combined = schema1.combine(makeTuple)(schema2)
+    implicit val makeTuple: Combiner[Option[Int], Option[String], (Option[Int], Option[String])] =
+      (o1: Option[Int], o2: Option[String]) => (o1, o2)
+    val combined = schema1.combine(schema2)
     assert(
       combined === CoproductSchema(
           (Some(1), Some("one")),
@@ -141,6 +145,4 @@ class SchemaTest extends AnyFunSuite {
         )
     )
   }
-
- */
 }

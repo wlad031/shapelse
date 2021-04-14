@@ -4,16 +4,31 @@ package implicits
 
 import shapeless.ops.hlist.ToTraversable
 import shapeless.ops.record.Values
-import shapeless.{ Coproduct, HList, LabelledGeneric, Lazy }
+import shapeless.{ <:!<, =:!=, Coproduct, HList, LabelledGeneric, Lazy }
+
+import scala.List
 
 trait GenericValueSchemaEncoders {
+
+  implicit def genericListValueSchemaEncoder[T](
+    implicit
+    tEncoder: ValueSchemaEncoder[T]
+  ): ValueSchemaEncoder[List[T]] = ValueSchemaEncoder.instance { (ls: List[T]) =>
+    {
+      val value = ls.map(tEncoder.encode)
+      val value2 = value.map(_.meta)
+      val value1 = ListValue
+      ListSchema(value1, value)
+    }
+  }
 
   implicit def genericProductValueSchemaEncoder[T, VRepr <: HList, TRepr <: HList](
     implicit
     gen: LabelledGeneric.Aux[T, TRepr],
     reprEncoder: Lazy[ProductValueSchemaEncoder[TRepr]],
     values: Values.Aux[TRepr, VRepr],
-    toList: ToTraversable.Aux[VRepr, List, Any]
+    toList: ToTraversable.Aux[VRepr, List, Any],
+    notList: T <:!< List[_]
   ): ProductValueSchemaEncoder[T] = ProductValueSchemaEncoder.instance { (a: T) =>
     {
       val tRepr = gen.to(a)
@@ -50,12 +65,13 @@ trait GenericValueSchemaEncoders {
   implicit def genericCoproductValueSchemaEncoder[T, VRepr <: HList, TRepr <: Coproduct](
     implicit
     gen: LabelledGeneric.Aux[T, TRepr],
-    reprEncoder: Lazy[CoproductValueSchemaEncoder[TRepr]]
+    reprEncoder: Lazy[CoproductValueSchemaEncoder[TRepr]],
+    notList: T <:!< List[_]
   ): CoproductValueSchemaEncoder[T] = CoproductValueSchemaEncoder.instance { (a: T) =>
     {
       val tRepr = gen.to(a)
       val repr = reprEncoder.value.encode(tRepr)
-      repr
+      CoproductSchema(CoproductValue, repr.childs)
     }
   }
 }

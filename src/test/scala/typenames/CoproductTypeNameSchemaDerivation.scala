@@ -1,32 +1,32 @@
 package dev.vgerasimov.shapelse
-package names
+package typenames
 
-import org.scalacheck.{ Arbitrary, ScalacheckShapeless }
+import org.scalacheck.{Arbitrary, ScalacheckShapeless}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 //noinspection TypeAnnotation
-class CoproductNameSchemaDerivation
+class CoproductTypeNameSchemaDerivation
     extends AnyFunSuite
     with Matchers
     with ScalaCheckPropertyChecks
     with ScalacheckShapeless {
 
-  import names.implicits.all._
+  import typenames.implicits.all._
 
-  test("Name schema for trait containing two simple case classes should be derivable") {
+  test("Type name schema for trait containing two simple case classes should be derivable") {
     sealed trait T
     case class A(i: Int) extends T
     case class B(s: String) extends T
 
     implicit val arbitrary = implicitly[Arbitrary[T]]
-    val encoder = namesSchemaEncoder[T]
+    val encoder = typeNamesSchemaEncoder[T]
     val expected = CoproductSchema(
-      "",
+      "T",
       List(
-        ProductSchema("A", List(IntSchema("i"))),
-        ProductSchema("B", List(StringSchema("s")))
+        ProductSchema("A", List(IntSchema("Int"))),
+        ProductSchema("B", List(StringSchema("String")))
       )
     )
     encoder.encode shouldBe expected
