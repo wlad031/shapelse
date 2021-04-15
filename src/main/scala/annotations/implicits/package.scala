@@ -1,13 +1,13 @@
 package dev.vgerasimov.shapelse
 package annotations
 
-import names.implicits.PrimitiveNamesSchemaEncoders
-
 package object implicits {
 
   object all
-//      extends PrimitiveSchemaEncoders
-      extends GenericAnnotatedSchemaEncoders
-//      with HListSchemaEncoders
-//      with CoproductSchemaEncoders
+      extends PrimitiveAnnotatedSchemaEncoders
+      with GenericAnnotatedSchemaEncoders
+      with HListAnnotatedSchemaEncoders
+      with CoproductAnnotatedSchemaEncoders
+
+  object primitives extends PrimitiveAnnotatedSchemaEncoders
 }
