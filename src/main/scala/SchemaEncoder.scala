@@ -3,9 +3,7 @@ package dev.vgerasimov.shapelse
 trait SchemaInstanceEncoder[M, A] { self =>
   def encode(a: A): Schema[M]
 
-  def map[M1](mapper: M => M1): SchemaInstanceEncoder[M1, A] = new SchemaInstanceEncoder[M1, A] {
-    override def encode(a: A): Schema[M1] = self.encode(a).map(mapper)
-  }
+  def map[M1](mapper: M => M1): SchemaInstanceEncoder[M1, A] = (a: A) => self.encode(a).map(mapper)
 }
 
 trait SchemaEncoder[M, A] extends SchemaInstanceEncoder[M, A] { self =>
