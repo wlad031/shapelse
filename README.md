@@ -10,9 +10,45 @@ Shapelse (_shape_ + _else_) is a small abstraction layer on top of [Shapeless](h
 As an abstraction layer it has less freedom in usage but in some cases it's more convenient to use.
 
 Shapelse allows deriving strictly defined *Schema*s for your
-ADTs ([what are ADTs?](https://alvinalexander.com/scala/fp-book/algebraic-data-types-adts-in-scala/)).
+ADTs ([what is ADT?](https://alvinalexander.com/scala/fp-book/algebraic-data-types-adts-in-scala/)).
 
 > *Why?* Originally, I needed to implement automatic derivation for [Json Schema](https://json-schema.org/) encoders. But then I realized that similar structure can be used in different cases, for example, if you need print your data in table view with pretty column titles. That's why it was extracted into this library.
+
+## Supported types
+
+Currently, Shapelse supports the following types:
+
+| Type | Comment |
+|------|---------|
+| primitives | `Boolean`, `Char`, `String`, `Byte`, `Short`, `Int`, `Long`, `Float`, `Double`  | 
+| case classes (products)<sup>*</sup> | |
+| sealed traits extended by case classes (coproducts)<sup>*</sup> | |
+| `Option`<sup>*</sup> | |
+| `List`<sup>*</sup> | |
+
+<sup>* Can contain any other supported types.</sup>
+
+## Implemented schema encoders
+
+### Empty
+
+TBD
+
+### Names
+
+TBD
+
+### Typenames
+
+TBD
+
+### Annotations
+
+TBD
+
+### Values
+
+TBD
 
 ## What is *Schema*?
 
@@ -31,40 +67,6 @@ case class says(s: String) extends StaticAnnotation
 sealed trait Animal
 @says("oof") case class Dog(name: String) extends Animal
 @says("meow") case class Cat(name: String) extends Animal
-
 ```
 
-First, import implicits:
-
-```scala 
-import dev.vgerasimov.shapelse.annotations.implicits.all._
-import dev.vgerasimov.shapelse.structure.implicits.all._
-```
-
-Now you are able to build your encoder:
-
-```scala
-val encoder = structureSchemaEncoder[Animal]
-  .combine(annotationSchemaEncoder[says, Animal])
-```
-
-Get your `Schema`:
-
-```scala
-val schema = encoder.encode
-
-// Output:
-// CoproductSchema(
-//   None,                      <- "Animal" doesn't have "@says"
-//   Map(                       <- children of "Animal"
-//     Symbol(Cat) ->           <- name of the first child
-//       ProductSchema(
-//         Some(says(meow)),    <- "Cat" has "@says"
-//         ListMap(             <- schemas of "Cat" class
-//           Symbol(name) -> StringSchema(None))),
-//     Symbol(Dog) ->           <- name of the second child
-//       ProductSchema(
-//         Some(says(oof)),     <- "Dog" has "@says"
-//         ListMap(             <- schemas of "Dog" class
-//           Symbol(name) -> StringSchema(None)))))
-```
+TBD
