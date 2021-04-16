@@ -4,10 +4,10 @@ package typenames
 package object implicits {
 
   object all
-      extends PrimitiveTypeNameSchemaEncoders
-      with GenericTypeNameSchemaEncoders
-      with HListTypeNameSchemaEncoders
-      with CoproductTypeNameSchemaEncoders
+      extends PrimitiveTypeNameShapeEncoders
+      with GenericTypeNameShapeEncoders
+      with HListTypeNameShapeEncoders
+      with CoproductTypeNameShapeEncoders
 
-  object primitives extends PrimitiveTypeNameSchemaEncoders
+  object primitives extends PrimitiveTypeNameShapeEncoders
 }

@@ -4,10 +4,10 @@ package annotations
 package object implicits {
 
   object all
-      extends PrimitiveAnnotatedSchemaEncoders
-      with GenericAnnotatedSchemaEncoders
-      with HListAnnotatedSchemaEncoders
-      with CoproductAnnotatedSchemaEncoders
+      extends PrimitiveAnnotatedShapeEncoders
+      with GenericAnnotatedShapeEncoders
+      with HListAnnotatedShapeEncoders
+      with CoproductAnnotatedShapeEncoders
 
-  object primitives extends PrimitiveAnnotatedSchemaEncoders
+  object primitives extends PrimitiveAnnotatedShapeEncoders
 }

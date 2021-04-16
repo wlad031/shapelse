@@ -6,24 +6,24 @@ import dev.vgerasimov.shapelse.empty.Emptible
 
 trait EncodersCombiningOps {
 
-  implicit class SchemaInstanceEncoderOps[M : Emptible, A](self: SchemaInstanceEncoder[M, A]) {
+  implicit class ShapeInstanceEncoderOps[M : Emptible, A](self: ShapeInstanceEncoder[M, A]) {
 
-    def combine[M1 : Emptible, MR](other: SchemaInstanceEncoder[M1, A])(
+    def combine[M1 : Emptible, MR](other: ShapeInstanceEncoder[M1, A])(
       implicit
       metaCombiner: Combiner[M, M1, MR]
-    ): SchemaInstanceEncoder[MR, A] = CombinedSchemaInstanceEncoder.instance(left = self, right = other)
+    ): ShapeInstanceEncoder[MR, A] = CombinedShapeInstanceEncoder.instance(left = self, right = other)
   }
 
-  implicit class SchemaEncoderOps[M : Emptible, A](self: SchemaEncoder[M, A]) {
+  implicit class ShapeEncoderOps[M : Emptible, A](self: ShapeEncoder[M, A]) {
 
-    def combine[M1 : Emptible, MR](other: SchemaEncoder[M1, A])(
+    def combine[M1 : Emptible, MR](other: ShapeEncoder[M1, A])(
       implicit
       combiner: Combiner[M, M1, MR]
-    ): SchemaEncoder[MR, A] = CombinedSchemaEncoder.instance(left = self, right = other)
+    ): ShapeEncoder[MR, A] = CombinedShapeEncoder.instance(left = self, right = other)
 
-    def combine[M1 : Emptible, MR](other: SchemaInstanceEncoder[M1, A])(
+    def combine[M1 : Emptible, MR](other: ShapeInstanceEncoder[M1, A])(
       implicit
       combiner: Combiner[M, M1, MR]
-    ): SchemaInstanceEncoder[MR, A] = CombinedSchemaInstanceEncoder.instance(left = self, right = other)
+    ): ShapeInstanceEncoder[MR, A] = CombinedShapeInstanceEncoder.instance(left = self, right = other)
   }
 }

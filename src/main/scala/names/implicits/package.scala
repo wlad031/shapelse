@@ -3,13 +3,13 @@ package names
 
 package object implicits {
 
-  /** Contains all needed implicits for automatic [[Schema]] derivation. */
+  /** Contains all needed implicits for automatic [[Shape]] derivation. */
   object all
-      extends PrimitiveNamesSchemaEncoders
-      with GenericNamesSchemaEncoders
-      with HListNamesSchemaEncoders
-      with CoproductNamesSchemaEncoders
+      extends PrimitiveNamesShapeEncoders
+      with GenericNamesShapeEncoders
+      with HListNamesShapeEncoders
+      with CoproductNamesShapeEncoders
 
-  /** Contains implicits for [[Schema]] derivation for primitive types. */
-  object primitives extends PrimitiveNamesSchemaEncoders
+  /** Contains implicits for [[Shape]] derivation for primitive types. */
+  object primitives extends PrimitiveNamesShapeEncoders
 }

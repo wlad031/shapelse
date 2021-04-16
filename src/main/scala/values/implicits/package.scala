@@ -4,10 +4,10 @@ package values
 package object implicits {
 
   object all
-      extends PrimitiveValueSchemaEncoders
-      with GenericValueSchemaEncoders
-      with HListValueSchemaEncoders
-      with CoproductValueSchemaEncoders
+      extends PrimitiveValueShapeEncoders
+      with GenericValueShapeEncoders
+      with HListValueShapeEncoders
+      with CoproductValueShapeEncoders
 
-  object primitives extends PrimitiveValueSchemaEncoders
+  object primitives extends PrimitiveValueShapeEncoders
 }

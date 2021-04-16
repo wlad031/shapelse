@@ -1,32 +1,32 @@
 package dev.vgerasimov
 
-import dev.vgerasimov.shapelse.annotations.AnnotatedSchemaEncoder
+import dev.vgerasimov.shapelse.annotations.AnnotatedShapeEncoder
 import dev.vgerasimov.shapelse.combine.implicits.empty._
 import dev.vgerasimov.shapelse.combine.syntax.EncodersCombiningOps
 import dev.vgerasimov.shapelse.empty.Empty
 import dev.vgerasimov.shapelse.empty.instances._
-import dev.vgerasimov.shapelse.names.NameSchemaEncoder
-import dev.vgerasimov.shapelse.typenames.TypeNameSchemaEncoder
-import dev.vgerasimov.shapelse.values.{ Value, ValueSchemaEncoder }
+import dev.vgerasimov.shapelse.names.NameShapeEncoder
+import dev.vgerasimov.shapelse.typenames.TypeNameShapeEncoder
+import dev.vgerasimov.shapelse.values.{ Value, ValueShapeEncoder }
 
 import scala.annotation.StaticAnnotation
 
 package object shapelse extends EncodersCombiningOps {
 
-  def emptySchemaEncoder[A](implicit ev: SchemaEncoder[Empty.type, A]): SchemaEncoder[Empty.type, A] = ev
+  def emptyShapeEncoder[A](implicit ev: ShapeEncoder[Empty.type, A]): ShapeEncoder[Empty.type, A] = ev
 
-  def namesSchemaEncoder[A](implicit ev: NameSchemaEncoder[A]): SchemaEncoder[String, A] = ev
+  def namesShapeEncoder[A](implicit ev: NameShapeEncoder[A]): ShapeEncoder[String, A] = ev
 
-  def typeNamesSchemaEncoder[A](implicit ev: TypeNameSchemaEncoder[A]): SchemaEncoder[String, A] = ev
+  def typeNamesShapeEncoder[A](implicit ev: TypeNameShapeEncoder[A]): ShapeEncoder[String, A] = ev
 
-  def annotationSchemaEncoder[Ann <: StaticAnnotation, A](
-    implicit ev: AnnotatedSchemaEncoder[Ann, A]
-  ): SchemaEncoder[Option[Ann], A] = ev
+  def annotationShapeEncoder[Ann <: StaticAnnotation, A](
+    implicit ev: AnnotatedShapeEncoder[Ann, A]
+  ): ShapeEncoder[Option[Ann], A] = ev
 
-  def valueSchemaEncoder[A](
+  def valueShapeEncoder[A](
     implicit
-    ev: ValueSchemaEncoder[A],
-    emptyEncoder: SchemaEncoder[Empty.type, A]
-  ): SchemaInstanceEncoder[Value, A] = emptyEncoder.combine(ev)
+    ev: ValueShapeEncoder[A],
+    emptyEncoder: ShapeEncoder[Empty.type, A]
+  ): ShapeInstanceEncoder[Value, A] = emptyEncoder.combine(ev)
 
 }

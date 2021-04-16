@@ -4,10 +4,10 @@ package empty
 package object implicits {
 
   object all
-      extends PrimitiveEmptySchemaEncoders
-      with GenericEmptySchemaEncoders
-      with HListEmptySchemaEncoders
-      with CoproductEmptySchemaEncoders
+      extends PrimitiveEmptyShapeEncoders
+      with GenericEmptyShapeEncoders
+      with HListEmptyShapeEncoders
+      with CoproductEmptyShapeEncoders
 
-  object primitives extends PrimitiveEmptySchemaEncoders
+  object primitives extends PrimitiveEmptyShapeEncoders
 }

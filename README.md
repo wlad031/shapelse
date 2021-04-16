@@ -9,7 +9,7 @@
 Shapelse (_shape_ + _else_) is a small abstraction layer on top of [Shapeless](https://github.com/milessabin/shapeless).
 As an abstraction layer it has less freedom in usage but in some cases it's more convenient to use.
 
-Shapelse allows deriving strictly defined *Schema*s for your
+Shapelse allows deriving strictly defined *Shape*s for your
 ADTs ([what is ADT?](https://alvinalexander.com/scala/fp-book/algebraic-data-types-adts-in-scala/)).
 
 > *Why?* Originally, I needed to implement automatic derivation for [Json Schema](https://json-schema.org/) encoders. But then I realized that similar structure can be used in different cases, for example, if you need print your data in table view with pretty column titles. That's why it was extracted into this library.
@@ -28,7 +28,7 @@ Currently, Shapelse supports the following types:
 
 <sup>* Can contain any other supported types.</sup>
 
-## Implemented schema encoders
+## Implemented shape encoders
 
 ### Empty
 
@@ -50,11 +50,11 @@ TBD
 
 TBD
 
-## What is *Schema*?
+## What is *Shape*?
 
-*Schema* is a simple algebraic data type:
+*Shape* is a simple algebraic data type:
 
-![schema](/docs/images/schema-adt.png?raw=true)
+![shape](/docs/images/shape-adt.png?raw=true)
 
 
 ## Example
