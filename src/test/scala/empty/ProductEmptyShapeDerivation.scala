@@ -1,7 +1,7 @@
 package dev.vgerasimov.shapelse
 package empty
 
-import org.scalacheck.{Arbitrary, ScalacheckShapeless}
+import org.scalacheck.{ Arbitrary, ScalacheckShapeless }
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks

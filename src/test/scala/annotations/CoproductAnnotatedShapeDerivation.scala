@@ -1,7 +1,7 @@
 package dev.vgerasimov.shapelse
 package annotations
 
-import org.scalacheck.{Arbitrary, ScalacheckShapeless}
+import org.scalacheck.{ Arbitrary, ScalacheckShapeless }
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -10,7 +10,7 @@ import scala.annotation.StaticAnnotation
 
 //noinspection TypeAnnotation
 class CoproductAnnotatedShapeDerivation
-  extends AnyFunSuite
+    extends AnyFunSuite
     with Matchers
     with ScalaCheckPropertyChecks
     with ScalacheckShapeless {

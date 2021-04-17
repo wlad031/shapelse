@@ -1,7 +1,7 @@
 package dev.vgerasimov.shapelse
 package annotations
 
-import org.scalacheck.{Arbitrary, ScalacheckShapeless}
+import org.scalacheck.{ Arbitrary, ScalacheckShapeless }
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -150,7 +150,7 @@ class ProductAnnotatedShapeDerivation
           ProductShape(
             Some(ann1(7)),
             List(ShortShape(Some(ann1(4))))
-          ),
+          )
         )
       )
     encoder.encode shouldBe expected
