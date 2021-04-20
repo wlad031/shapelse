@@ -4,9 +4,7 @@ package implicits
 
 import shapeless.ops.hlist.ToTraversable
 import shapeless.ops.record.Values
-import shapeless.{ <:!<, =:!=, Coproduct, HList, LabelledGeneric, Lazy }
-
-import scala.List
+import shapeless.{ <:!<, Coproduct, HList, LabelledGeneric, Lazy }
 
 trait GenericValueShapeEncoders {
 
@@ -15,10 +13,8 @@ trait GenericValueShapeEncoders {
     tEncoder: ValueShapeEncoder[T]
   ): ValueShapeEncoder[List[T]] = ValueShapeEncoder.instance { (ls: List[T]) =>
     {
-      val value = ls.map(tEncoder.encode)
-      val value2 = value.map(_.meta)
-      val value1 = ListValue
-      ListShape(value1, value)
+      val childs = ls.map(tEncoder.encode)
+      ListShape(if (childs.isEmpty) NilValue else ListValue, childs)
     }
   }
 

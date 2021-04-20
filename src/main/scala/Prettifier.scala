@@ -18,9 +18,6 @@ object Prettifier {
 
   final case class Config(
     indent: Int = 2,
-    maxWidth: Int = 80,
-    withProductFieldNames: Boolean = true,
-    withPrimitiveTypeNames: Boolean = false,
     modifiers: Modifiers = Modifiers()
   )
 
@@ -68,60 +65,51 @@ object Prettifier {
         val f = cfg.modifiers.chars
         val (eq, lp, rp, lb, rb, cm) = (f("="), f("("), f(")"), f("{"), f("}"), f(","))
 
-        val sb = new Buffer()
-
-        def iter(shape: Shape[Data], lvl: Int, prevLen: Int): fansi.Str = {
+        def iter(shape: Shape[Data], lvl: Int, prevLen: Int, prevTypeName: String): fansi.Str = {
+          val sb = new Buffer()
           shape match {
 
             case shape: PrimitiveShape[_] =>
-              if (cfg.withProductFieldNames)
-                sb.append(cfg.modifiers.fieldName(shape.meta.fieldName)).append(" ").append(eq).append(" ")
-              if (cfg.withPrimitiveTypeNames)
-                sb.append(cfg.modifiers.typeName(shape.meta.typeName)).append(lp)
+              sb.append(cfg.modifiers.fieldName(shape.meta.fieldName)).append(" ").append(eq).append(" ")
+              sb.append(cfg.modifiers.typeName(shape.meta.typeName)).append(lp)
               sb.append(cfg.modifiers.value(foo(shape.meta.value)))
-              if (cfg.withPrimitiveTypeNames)
-                sb.append(rp)
+              sb.append(rp)
               sb.result()
 
             case OptionShape(meta, shape) => ???
 
             case ListShape(meta, childs) =>
-              if (cfg.withProductFieldNames && meta.fieldName != "")
+              if (meta.fieldName != "")
                 sb.append(cfg.modifiers.fieldName(meta.fieldName)).append(" ").append(eq).append(" ")
-              sb.append(cfg.modifiers.typeName(shape.meta.typeName)).append(" ").append(lb).append(" ")
+              sb.append(cfg.modifiers.typeName(shape.meta.typeName)).append(" ").append(lb)
 
-              val c = childs.map(sc => iter(sc, lvl + 1, prevLen + sb.length()))
-              val len = prevLen + sb.length() + c.map(x => x.length).sum + (c.length - 1) * 2 + 1
+              val c = childs.map(sc => iter(sc, lvl + 1, prevLen + sb.length(), ""))
 
-              if (len > cfg.maxWidth) {
-                sb.append("\n")
-                  .append(c.map(x => indent(lvl + 1) + x).mkString("\n"))
-                  .append("\n")
-                  .append(indent(lvl))
-                  .append(")")
-              } else {
-                sb.append(c.mkString(", ")).append(cfg.modifiers.typeName(" }"))
-              }
+              sb.append("\n")
+                .append(c.map(x => indent(lvl + 1) + x).mkString(",\n"))
+                .append("\n")
+                .append(indent(lvl))
+                .append(rp)
 
               sb.result()
 
             case ProductShape(meta, childs) =>
-              if (cfg.withProductFieldNames && shape.meta.fieldName != "")
-                sb.append(cfg.modifiers.fieldName(s"${shape.meta.fieldName} = "))
-              sb.append(cfg.modifiers.typeName(s"${shape.meta.typeName} { "))
+              if (prevTypeName != "") sb.append(cfg.modifiers.fieldName(prevTypeName + "("))
+              if (meta.fieldName != "") sb.append(cfg.modifiers.fieldName(meta.fieldName))
+              if (prevTypeName != "") sb.append(cfg.modifiers.fieldName(")"))
+              sb.append(" ")
+                .append(eq)
+                .append(" ")
+              sb.append(cfg.modifiers.typeName(meta.typeName))
+              sb.append(lb)
 
-              val c = childs.map(sc => iter(sc, lvl + 1, prevLen + sb.length()))
-              val len = prevLen + sb.length() + c.map(x => x.length).sum + (c.length - 1) * 2 + 1
+              val c = childs.map(sc => iter(sc, lvl + 1, prevLen + sb.length(), ""))
 
-              if (len > cfg.maxWidth) {
-                sb.append("\n")
-                  .append(c.map(x => indent(lvl + 1) + x).mkString("\n"))
-                  .append("\n")
-                  .append(indent(lvl))
-                  .append(")")
-              } else {
-                sb.append(c.mkString(", ")).append(cfg.modifiers.typeName(" }"))
-              }
+              sb.append("\n")
+                .append(c.map(x => indent(lvl + 1) + x).mkString("\n"))
+                .append("\n")
+                .append(indent(lvl))
+                .append(rp)
 
               sb.result()
 
@@ -132,12 +120,12 @@ object Prettifier {
                   foo(value) == "product"
                 })
                 .map(x => x.asInstanceOf[ProductShape[Data]])
-              iter(product.get, lvl, prevLen)
+              iter(product.get, lvl, prevLen, meta.typeName)
 
           }
         }
 
-        iter(shapeEncoder.encode(a), 0, 0)
+        iter(shapeEncoder.encode(a), 0, 0, "")
       }
     }
   }

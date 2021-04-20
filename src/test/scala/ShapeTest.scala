@@ -2,7 +2,6 @@ package dev.vgerasimov.shapelse
 
 import dev.vgerasimov.shapelse.combine.Combiner
 import org.scalatest.funsuite.AnyFunSuite
-import empty.instances._
 
 class ShapeTest extends AnyFunSuite {
 
@@ -107,11 +106,13 @@ class ShapeTest extends AnyFunSuite {
       (o1: Option[Int], o2: Option[String]) => (o1, o2)
     val combined = shape1.combine(shape2)
     assert(
-      combined === ProductShape(
-          (Some(1), Some("one")),
-          List[Shape[(Option[Int], Option[String])]](
-            IntShape((Some(10), Some("ten"))),
-            StringShape((Some(11), Some("eleven")))
+      combined === Right(
+          ProductShape(
+            (Some(1), Some("one")),
+            List[Shape[(Option[Int], Option[String])]](
+              IntShape((Some(10), Some("ten"))),
+              StringShape((Some(11), Some("eleven")))
+            )
           )
         )
     )
@@ -136,13 +137,33 @@ class ShapeTest extends AnyFunSuite {
       (o1: Option[Int], o2: Option[String]) => (o1, o2)
     val combined = shape1.combine(shape2)
     assert(
-      combined === CoproductShape(
-          (Some(1), Some("one")),
-          List(
-            ProductShape((Some(10), Some("ten")), List()),
-            ProductShape((Some(11), Some("eleven")), List())
+      combined === Right(
+          CoproductShape(
+            (Some(1), Some("one")),
+            List(
+              ProductShape((Some(10), Some("ten")), List()),
+              ProductShape((Some(11), Some("eleven")), List())
+            )
           )
         )
     )
+  }
+
+  test("Combine on list shapes of equal sizes should be successful") {
+    val shape1 = ListShape(1, List(StringShape(11), StringShape(21), StringShape(31)))
+    val shape2 = ListShape(2, List(StringShape(12), StringShape(22), StringShape(32)))
+
+    implicit val combiner: Combiner[Int, Int, Int] = _ + _
+    val combined = shape1.combine(shape2)
+    assert(combined === Right(ListShape(3, List(StringShape(23), StringShape(43), StringShape(63)))))
+  }
+
+  test("Combine on list shapes of not equal sizes should be successful") {
+    val shape1 = ListShape(1, List(StringShape(11), StringShape(21), StringShape(31)))
+    val shape2 = ListShape(2, List(StringShape(12), StringShape(22)))
+
+    implicit val combiner: Combiner[Int, Int, Int] = _ + _
+    val combined = shape1.combine(shape2)
+    assert(combined === Right(ListShape(3, List(StringShape(23), StringShape(43), StringShape(43)))))
   }
 }

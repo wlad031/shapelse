@@ -1,190 +1,314 @@
 package dev.vgerasimov.shapelse
 
 import dev.vgerasimov.shapelse.combine.Combiner
-import dev.vgerasimov.shapelse.empty.Emptible
 
+// TODO: improve this doc
 /** Represents some ADT's shape whether it's a sealed trait's subtype or case class' shapes.
-  *
-  * Basically, it's a typed container for some information (meta) about such shapes.
-  *
-  * @tparam M the type of stored meta
+  * @tparam A the type of stored meta
   */
-sealed trait Shape[M] {
-
-  /** Returns shape's metadata. */
-  def meta: M
+sealed trait Shape[A] extends MetaProvider[A] {
 
   /** Returns new shape with the result of applying given function on shape's meta.
     *
-    * In case if this is some composite shape, for example [[ProductShape]], recursively maps all it's childs.
+    * In case if `this` is [[CompositeShape]] function will be applied on it's meta recursively.
+    *
+    * @param mapper the function to be applied on meta
+    * @tparam B the type of resulted meta
+    */
+  def map[B](mapper: A => B): Shape[B]
+
+  /** Returns new shape with the result of applying given function in shape's meta.
+    *
+    * In case if `this` is [[CompositeShape]] meta of the childs won't be affected.
     *
     * @param mapper the function to be applied on the meta
-    * @tparam MR the type of resulted meta
     */
-  def map[MR](mapper: M => MR): Shape[MR]
+  private[shapelse] def mapMetaOnly(mapper: A => A): Shape[A]
 
-  private[shapelse] def empty[M1 : Emptible]: Shape[M1]
-  private[shapelse] def mapMetaOnly[MR](mapper: M => M): Shape[M] = map(mapper)
-  private[shapelse] def combine[M1, MR](other: Shape[M1])(implicit combiner: Combiner[M, M1, MR]): Shape[MR] =
-    map(combiner(_, other.meta))
-}
+  /** Returns new shape with the result of applying given function of `this`' meta and given one.
+    *
+    * In case of `this` and given one are actually different shapes, returns [[CombiningError]].
+    *
+    * @param that the shape `this` to be combined with
+    * @param combiner the function to be applied on meta
+    * @tparam B the type of meta of the given shape
+    * @tparam C the type of meta of resulted shape
+    */
+  def combine[B, C](that: Shape[B])(
+    implicit combiner: Combiner[A, B, C]
+  ): Either[CombiningError, Shape[C]]
 
-object Shape {
-
-  private[shapelse] def combine[M1, M2, MR](left: Shape[M1], right: Shape[M2])(
-    implicit
-    combiner: Combiner[M1, M2, MR],
-    e1: Emptible[M1],
-    e2: Emptible[M2]
-  ): Shape[MR] = (left, right) match {
-    case (l: BooleanShape[M1], r: BooleanShape[M2])     => l.combine(r)
-    case (l: CharShape[M1], r: CharShape[M2])           => l.combine(r)
-    case (l: StringShape[M1], r: StringShape[M2])       => l.combine(r)
-    case (l: ByteShape[M1], r: ByteShape[M2])           => l.combine(r)
-    case (l: ShortShape[M1], r: ShortShape[M2])         => l.combine(r)
-    case (l: IntShape[M1], r: IntShape[M2])             => l.combine(r)
-    case (l: LongShape[M1], r: LongShape[M2])           => l.combine(r)
-    case (l: FloatShape[M1], r: FloatShape[M2])         => l.combine(r)
-    case (l: DoubleShape[M1], r: DoubleShape[M2])       => l.combine(r)
-    case (l: OptionShape[M1], r: OptionShape[M2])       => l.combine(r)
-    case (l: ListShape[M1], r: ListShape[M2])           => l.combine(r)
-    case (l: ProductShape[M1], r: ProductShape[M2])     => l.combine(r)
-    case (l: CoproductShape[M1], r: CoproductShape[M2]) => l.combine(r)
-    case (l, r) =>
-      sys.error(s"Invalid shape combining: left=${l.getClass} right=${r.getClass}")
-  }
-
-  private[shapelse] def combineChilds[M1, M2, MR](
-    thisChilds: List[Shape[M1]],
-    otherChilds: List[Shape[M2]]
-  )(
-    implicit
-    combiner: Combiner[M1, M2, MR],
-    e1: Emptible[M1],
-    e2: Emptible[M2]
-  ): List[Shape[MR]] =
-    thisChilds
-      .zipAll(otherChilds, e1, e2)
-      .map({
-        case (l: Shape[_], r: Shape[_])   => combine(l.asInstanceOf[Shape[M1]], r.asInstanceOf[Shape[M2]])
-        case (l: Shape[_], _: Emptible[_]) => combine(l.asInstanceOf[Shape[M1]], l.empty(e2))
-        case (_: Emptible[_], r: Shape[_]) => combine(r.empty(e1), r.asInstanceOf[Shape[M2]])
-      })
+  private[shapelse] def combine[B, C](
+    that: Shape[B],
+    ifThisChildEmpty: => Option[A],
+    ifThatChildEmpty: => Option[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, Shape[C]]
 }
 
 //region Primitive shapes
 
-sealed trait PrimitiveShape[M] extends Shape[M]
-
-final case class BooleanShape[M](override val meta: M) extends PrimitiveShape[M] {
-  override private[shapelse] def empty[M1](implicit e: Emptible[M1]): BooleanShape[M1] = BooleanShape(e.empty)
-  override def map[MR](mapper: M => MR): BooleanShape[MR] = BooleanShape(mapper(meta))
+sealed trait PrimitiveShape[A] extends Shape[A] {
+  override private[shapelse] def combine[B, C](
+    that: Shape[B],
+    ifThisChildEmpty: => Option[A],
+    ifThatChildEmpty: => Option[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, Shape[C]] = combine(that)
 }
 
-final case class CharShape[M](override val meta: M) extends PrimitiveShape[M] {
-  override private[shapelse] def empty[M1](implicit e: Emptible[M1]): CharShape[M1] = CharShape(e.empty)
-  override def map[MR](mapper: M => MR): CharShape[MR] = CharShape(mapper(meta))
+final case class BooleanShape[A](override val meta: A) extends PrimitiveShape[A] {
+  override def map[B](mapper: A => B): BooleanShape[B] = BooleanShape(mapper(meta))
+  override private[shapelse] def mapMetaOnly(mapper: A => A): BooleanShape[A] = map(mapper)
+
+  override def combine[B, C](
+    that: Shape[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, Shape[C]] = that match {
+    case BooleanShape(rightMeta) => Right(BooleanShape(combiner(meta, rightMeta)))
+    case that                    => Left(CombiningError.IncompatibleShapes(this, that))
+  }
 }
 
-final case class StringShape[M](override val meta: M) extends PrimitiveShape[M] {
-  override private[shapelse] def empty[M1](implicit e: Emptible[M1]): StringShape[M1] = StringShape(e.empty)
-  override def map[MR](mapper: M => MR): StringShape[MR] = StringShape(mapper(meta))
+final case class CharShape[A](override val meta: A) extends PrimitiveShape[A] {
+  override def map[B](mapper: A => B): CharShape[B] = CharShape(mapper(meta))
+  override private[shapelse] def mapMetaOnly(mapper: A => A): CharShape[A] = map(mapper)
+
+  override def combine[B, C](
+    that: Shape[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, Shape[C]] = that match {
+    case CharShape(rightMeta) => Right(CharShape(combiner(meta, rightMeta)))
+    case that                 => Left(CombiningError.IncompatibleShapes(this, that))
+  }
 }
 
-final case class ByteShape[M](override val meta: M) extends PrimitiveShape[M] {
-  override private[shapelse] def empty[M1](implicit e: Emptible[M1]): ByteShape[M1] = ByteShape(e.empty)
-  override def map[MR](mapper: M => MR): ByteShape[MR] = ByteShape(mapper(meta))
+final case class StringShape[A](override val meta: A) extends PrimitiveShape[A] {
+  override def map[B](mapper: A => B): StringShape[B] = StringShape(mapper(meta))
+  override private[shapelse] def mapMetaOnly(mapper: A => A): StringShape[A] = map(mapper)
+
+  override def combine[B, C](
+    that: Shape[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, Shape[C]] = that match {
+    case StringShape(rightMeta) => Right(StringShape(combiner(meta, rightMeta)))
+    case that                   => Left(CombiningError.IncompatibleShapes(this, that))
+  }
 }
 
-final case class ShortShape[M](override val meta: M) extends PrimitiveShape[M] {
-  override private[shapelse] def empty[M1](implicit e: Emptible[M1]): ShortShape[M1] = ShortShape(e.empty)
-  override def map[MR](mapper: M => MR): ShortShape[MR] = ShortShape(mapper(meta))
+final case class ByteShape[A](override val meta: A) extends PrimitiveShape[A] {
+  override def map[B](mapper: A => B): ByteShape[B] = ByteShape(mapper(meta))
+  override private[shapelse] def mapMetaOnly(mapper: A => A): ByteShape[A] = map(mapper)
+
+  override def combine[B, C](
+    that: Shape[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, Shape[C]] = that match {
+    case ByteShape(rightMeta) => Right(ByteShape(combiner(meta, rightMeta)))
+    case that                 => Left(CombiningError.IncompatibleShapes(this, that))
+  }
 }
 
-final case class IntShape[M](override val meta: M) extends PrimitiveShape[M] {
-  override private[shapelse] def empty[M1](implicit e: Emptible[M1]): IntShape[M1] = IntShape(e.empty)
-  override def map[MR](mapper: M => MR): IntShape[MR] = IntShape(mapper(meta))
+final case class ShortShape[A](override val meta: A) extends PrimitiveShape[A] {
+  override def map[B](mapper: A => B): ShortShape[B] = ShortShape(mapper(meta))
+  override private[shapelse] def mapMetaOnly(mapper: A => A): ShortShape[A] = map(mapper)
+
+  override def combine[B, C](
+    that: Shape[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, Shape[C]] = that match {
+    case ShortShape(rightMeta) => Right(ShortShape(combiner(meta, rightMeta)))
+    case that                  => Left(CombiningError.IncompatibleShapes(this, that))
+  }
 }
 
-final case class LongShape[M](override val meta: M) extends PrimitiveShape[M] {
-  override private[shapelse] def empty[M1](implicit e: Emptible[M1]): LongShape[M1] = LongShape(e.empty)
-  override def map[MR](mapper: M => MR): LongShape[MR] = LongShape(mapper(meta))
+final case class IntShape[A](override val meta: A) extends PrimitiveShape[A] {
+  override def map[B](mapper: A => B): IntShape[B] = IntShape(mapper(meta))
+  override private[shapelse] def mapMetaOnly(mapper: A => A): IntShape[A] = map(mapper)
+
+  override def combine[B, C](
+    that: Shape[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, Shape[C]] = that match {
+    case IntShape(rightMeta) => Right(IntShape(combiner(meta, rightMeta)))
+    case that                => Left(CombiningError.IncompatibleShapes(this, that))
+  }
 }
 
-final case class FloatShape[M](override val meta: M) extends PrimitiveShape[M] {
-  override private[shapelse] def empty[M1](implicit e: Emptible[M1]): FloatShape[M1] = FloatShape(e.empty)
-  override def map[MR](mapper: M => MR): FloatShape[MR] = FloatShape(mapper(meta))
+final case class LongShape[A](override val meta: A) extends PrimitiveShape[A] {
+  override def map[B](mapper: A => B): LongShape[B] = LongShape(mapper(meta))
+  override private[shapelse] def mapMetaOnly(mapper: A => A): LongShape[A] = map(mapper)
+
+  override def combine[B, C](
+    that: Shape[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, Shape[C]] = that match {
+    case LongShape(rightMeta) => Right(LongShape(combiner(meta, rightMeta)))
+    case that                 => Left(CombiningError.IncompatibleShapes(this, that))
+  }
 }
 
-final case class DoubleShape[M](override val meta: M) extends PrimitiveShape[M] {
-  override private[shapelse] def empty[M1](implicit e: Emptible[M1]): DoubleShape[M1] = DoubleShape(e.empty)
-  override def map[MR](mapper: M => MR): DoubleShape[MR] = DoubleShape(mapper(meta))
+final case class FloatShape[A](override val meta: A) extends PrimitiveShape[A] {
+  override def map[B](mapper: A => B): FloatShape[B] = FloatShape(mapper(meta))
+  override private[shapelse] def mapMetaOnly(mapper: A => A): FloatShape[A] = map(mapper)
+
+  override def combine[B, C](
+    that: Shape[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, Shape[C]] = that match {
+    case FloatShape(rightMeta) => Right(FloatShape(combiner(meta, rightMeta)))
+    case that                  => Left(CombiningError.IncompatibleShapes(this, that))
+  }
+}
+
+final case class DoubleShape[A](override val meta: A) extends PrimitiveShape[A] {
+  override def map[B](mapper: A => B): DoubleShape[B] = DoubleShape(mapper(meta))
+  override private[shapelse] def mapMetaOnly(mapper: A => A): DoubleShape[A] = map(mapper)
+
+  override def combine[B, C](
+    that: Shape[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, Shape[C]] = that match {
+    case DoubleShape(rightMeta) => Right(DoubleShape(combiner(meta, rightMeta)))
+    case that                   => Left(CombiningError.IncompatibleShapes(this, that))
+  }
 }
 
 //endregion
 
 //region Composite shapes
 
-final case class OptionShape[M](override val meta: M, child: Option[Shape[M]]) extends Shape[M] {
-  override private[shapelse] def empty[M1](implicit e: Emptible[M1]): OptionShape[M1] =
-    OptionShape(e.empty, child.map(_.empty))
-  override def map[MR](mapper: M => MR): OptionShape[MR] = OptionShape(mapper(meta), child.map(_.map(mapper)))
-  override private[shapelse] def mapMetaOnly[MR](mapper: M => M): OptionShape[M] = OptionShape(mapper(meta), child)
-  private[shapelse] def combine[M1, MR](
-    other: OptionShape[M1]
-  )(implicit combiner: Combiner[M, M1, MR]): OptionShape[MR] = map(m => combiner(m, other.meta))
+sealed trait CompositeShape[A] extends Shape[A] {
+
+  override def combine[B, C](
+    that: Shape[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, Shape[C]] =
+    combine(that, None, None)
+
+  protected def liftCombiningErrors[B, C](
+    combiningResult: List[Either[CombiningError, Shape[C]]]
+  ): Either[CombiningError, List[Shape[C]]] = combiningResult.partition(_.isLeft) match {
+    case (Nil, rightShapes) => Right(for (Right(shape) <- rightShapes) yield shape)
+    case (leftErrors, _) =>
+      val errors = for (Left(error) <- leftErrors) yield error
+      Left(errors match {
+        case x :: Nil => x
+        case xs       => CombiningError.Multiple(xs)
+      })
+  }
 }
 
-final case class ListShape[M](override val meta: M, childs: List[Shape[M]]) extends Shape[M] {
-  override private[shapelse] def empty[M1](implicit e: Emptible[M1]): ListShape[M1] =
-    ListShape(e.empty, childs.map(_.empty))
-  override def map[MR](mapper: M => MR): ListShape[MR] = ListShape(mapper(meta), childs.map(_.map(mapper)))
-  override private[shapelse] def mapMetaOnly[MR](mapper: M => M): ListShape[M] = ListShape(mapper(meta), childs)
-  private[shapelse] def combine[M1, MR](other: ListShape[M1])(
-    implicit
-    combiner: Combiner[M, M1, MR]
-  ): ListShape[MR] = ListShape(
-    combiner(meta, other.meta),
-    Shape.combineChilds(childs, other.childs)(combiner, Emptible(childs.head.meta), Emptible(other.childs.head.meta))
-  )
+final case class OptionShape[A](override val meta: A, child: Option[Shape[A]]) extends CompositeShape[A] {
+
+  override def map[B](mapper: A => B): OptionShape[B] = OptionShape(mapper(meta), child.map(_.map(mapper)))
+  override private[shapelse] def mapMetaOnly(mapper: A => A): OptionShape[A] = OptionShape(mapper(meta), child)
+
+  override private[shapelse] def combine[B, C](
+    that: Shape[B],
+    ifThisChildEmpty: => Option[A],
+    ifThatChildEmpty: => Option[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, OptionShape[C]] = that match {
+    case OptionShape(thatMeta, thatChildOption) =>
+      for {
+        thisChild <- this.child
+          .orElse(ifThisChildEmpty.map(x => this.map(_ => x)))
+          .toRight(CombiningError.IfEmptyNotProvided(this))
+        thatChild <- thatChildOption
+          .orElse(ifThatChildEmpty.map(x => this.map(_ => x)))
+          .toRight(CombiningError.IfEmptyNotProvided(that))
+        combinedChild <- thisChild combine thatChild
+      } yield OptionShape(combiner(this.meta, thatMeta), Some(combinedChild))
+    case that => Left(CombiningError.IncompatibleShapes(this, that))
+  }
 }
 
-final case class ProductShape[M](override val meta: M, childs: List[Shape[M]]) extends Shape[M] {
-  override private[shapelse] def empty[M1](implicit e: Emptible[M1]): ProductShape[M1] =
-    ProductShape(e.empty, childs.map(_.empty))
-  override def map[MR](mapper: M => MR): ProductShape[MR] = ProductShape(mapper(meta), childs.map(_.map(mapper)))
-  override private[shapelse] def mapMetaOnly[MR](mapper: M => M): ProductShape[M] = ProductShape(mapper(meta), childs)
+final case class ListShape[A](override val meta: A, childs: List[Shape[A]]) extends CompositeShape[A] {
 
-  private[shapelse] def combine[M1, MR](other: ProductShape[M1])(
-    implicit
-    combiner: Combiner[M, M1, MR],
-    e1: Emptible[M],
-    e2: Emptible[M1]
-  ): ProductShape[MR] = ProductShape(
-    combiner(this.meta, other.meta),
-    Shape.combineChilds(this.childs, other.childs)
-  )
+  override def map[B](mapper: A => B): ListShape[B] = ListShape(mapper(meta), childs.map(_.map(mapper)))
+  override private[shapelse] def mapMetaOnly(mapper: A => A): ListShape[A] = ListShape(mapper(meta), childs)
+
+  override def combine[B, C](
+    that: Shape[B],
+    ifThisChildEmpty: => Option[A],
+    ifThatChildEmpty: => Option[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, ListShape[C]] = that match {
+    case ListShape(thatMeta, thatChilds) =>
+      liftCombiningErrors(
+        this.childs
+          .map(Some(_))
+          .zipAll(
+            thatChilds.map(Some(_)),
+            this.childs.headOption.orElse(for {
+              e        <- ifThisChildEmpty
+              thatHead <- thatChilds.headOption
+            } yield thatHead.map(_ => e)),
+            thatChilds.headOption.orElse(for {
+              e        <- ifThatChildEmpty
+              thisHead <- this.childs.headOption
+            } yield thisHead.map(_ => e))
+          )
+          .map({
+            case (leftShape: Some[Shape[_]], rightShape: Some[Shape[_]]) =>
+              leftShape.get
+                .asInstanceOf[Shape[A]]
+                .combine(rightShape.get.asInstanceOf[Shape[B]], ifThisChildEmpty, ifThatChildEmpty)
+            case (leftShape: Some[Shape[_]], _) => Left(CombiningError.IfEmptyNotProvided(leftShape.get))
+            case (_, rightShape)                => Left(CombiningError.IfEmptyNotProvided(rightShape.get))
+          })
+      ).map(combinedChilds => ListShape(combiner(this.meta, thatMeta), combinedChilds))
+    case that => Left(CombiningError.IncompatibleShapes(this, that))
+  }
 }
 
-final case class CoproductShape[M](override val meta: M, childs: List[Shape[M]]) extends Shape[M] {
+final case class ProductShape[A](override val meta: A, childs: List[Shape[A]]) extends CompositeShape[A] {
 
-  override private[shapelse] def empty[M1](implicit e: Emptible[M1]): CoproductShape[M1] =
-    CoproductShape(e.empty, childs.map(_.empty))
+  override def map[B](mapper: A => B): ProductShape[B] = ProductShape(mapper(meta), childs.map(_.map(mapper)))
+  override private[shapelse] def mapMetaOnly(mapper: A => A): ProductShape[A] = ProductShape(mapper(meta), childs)
 
-  override def map[MR](mapper: M => MR): CoproductShape[MR] = CoproductShape(mapper(meta), childs.map(_.map(mapper)))
+  override private[shapelse] def combine[B, C](
+    that: Shape[B],
+    ifThisChildEmpty: => Option[A],
+    ifThatChildEmpty: => Option[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, ProductShape[C]] = that match {
+    case ProductShape(thatMeta, thatChilds) =>
+      liftCombiningErrors(
+        this.childs
+          .zipAll(thatChilds, ifThisChildEmpty, ifThatChildEmpty)
+          .map({
+            case (_: Shape[_], None) => Left(CombiningError.IfEmptyNotProvided(that))
+            case (None, _: Shape[_]) => Left(CombiningError.IfEmptyNotProvided(this))
+            case (leftShape: Shape[_], rightShape: Shape[_]) =>
+              leftShape
+                .asInstanceOf[Shape[A]]
+                .combine(rightShape.asInstanceOf[Shape[B]], ifThisChildEmpty, ifThatChildEmpty)(combiner)
+            case (leftShape: Shape[_], Some(ifEmpty)) =>
+              leftShape.asInstanceOf[Shape[A]].combine(leftShape.map(_ => ifEmpty.asInstanceOf[B]))
+            case (Some(ifEmpty), rightShape: Shape[_]) =>
+              rightShape.map(_ => ifEmpty.asInstanceOf[A]).combine(rightShape.asInstanceOf[Shape[B]])
+          })
+      ).map(combinedChilds => ProductShape(combiner(this.meta, thatMeta), combinedChilds))
+    case that => Left(CombiningError.IncompatibleShapes(this, that))
+  }
+}
 
-  override private[shapelse] def mapMetaOnly[MR](mapper: M => M): CoproductShape[M] =
-    CoproductShape(mapper(meta), childs)
+final case class CoproductShape[A](override val meta: A, childs: List[Shape[A]]) extends CompositeShape[A] {
 
-  private[shapelse] def combine[M1, MR](other: CoproductShape[M1])(
-    implicit
-    combiner: Combiner[M, M1, MR],
-    e1: Emptible[M],
-    e2: Emptible[M1]
-  ): CoproductShape[MR] = CoproductShape(
-    combiner(this.meta, other.meta),
-    Shape.combineChilds(this.childs, other.childs)
-  )
+  override def map[B](mapper: A => B): CoproductShape[B] = CoproductShape(mapper(meta), childs.map(_.map(mapper)))
+  override private[shapelse] def mapMetaOnly(mapper: A => A): CoproductShape[A] = CoproductShape(mapper(meta), childs)
+
+  override def combine[B, C](
+    that: Shape[B],
+    ifThisChildEmpty: => Option[A],
+    ifThatChildEmpty: => Option[B]
+  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, CoproductShape[C]] = that match {
+    case CoproductShape(thatMeta, thatChilds) =>
+      liftCombiningErrors(
+        this.childs
+          .zipAll(thatChilds, ifThisChildEmpty, ifThatChildEmpty)
+          .map({
+            case (_: Shape[_], None) => Left(CombiningError.IfEmptyNotProvided(that))
+            case (None, _: Shape[_]) => Left(CombiningError.IfEmptyNotProvided(this))
+            case (leftShape: Shape[_], rightShape: Shape[_]) =>
+              leftShape
+                .asInstanceOf[Shape[A]]
+                .combine(rightShape.asInstanceOf[Shape[B]], ifThisChildEmpty, ifThatChildEmpty)(combiner)
+            case (leftShape: Shape[_], Some(ifEmpty)) =>
+              leftShape.asInstanceOf[Shape[A]].combine(leftShape.map(_ => ifEmpty.asInstanceOf[B]))
+            case (Some(ifEmpty), rightShape: Shape[_]) =>
+              rightShape.map(_ => ifEmpty.asInstanceOf[A]).combine(rightShape.asInstanceOf[Shape[B]])
+          })
+      ).map(combinedChilds => CoproductShape(combiner(this.meta, thatMeta), combinedChilds))
+    case that => Left(CombiningError.IncompatibleShapes(this, that))
+  }
 }
 
 //endregion

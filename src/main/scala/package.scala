@@ -29,4 +29,10 @@ package object shapelse extends EncodersCombiningOps {
     emptyEncoder: ShapeEncoder[Empty.type, A]
   ): ShapeInstanceEncoder[Value, A] = emptyEncoder.combine(ev)
 
+  sealed trait CombiningError
+  object CombiningError {
+    final case class IncompatibleShapes[S1 <: Shape[_], S2 <: Shape[_]](left: S1, right: S2) extends CombiningError
+    final case class IfEmptyNotProvided[S <: Shape[_]](shape: S) extends CombiningError
+    final case class Multiple(errors: List[CombiningError]) extends CombiningError
+  }
 }
