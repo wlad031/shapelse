@@ -53,12 +53,6 @@ class ShapeTest extends AnyFunSuite {
     assert(mapped === DoubleShape(Some(11)))
   }
 
-  test("Map on option shape should be successful") {
-    val shape = OptionShape(Some(0), Some(DoubleShape(Some(1))))
-    val mapped = shape.map(_.map(x => x + 10))
-    assert(mapped === OptionShape(Some(10), Some(DoubleShape(Some(11)))))
-  }
-
   test("Map on list shape should be successful") {
     val shape = ListShape(Some(0), List(DoubleShape(Some(1))))
     val mapped = shape.map(_.map(x => x + 10))

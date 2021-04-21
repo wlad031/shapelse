@@ -187,30 +187,6 @@ sealed trait CompositeShape[A] extends Shape[A] {
   }
 }
 
-final case class OptionShape[A](override val meta: A, child: Option[Shape[A]]) extends CompositeShape[A] {
-
-  override def map[B](mapper: A => B): OptionShape[B] = OptionShape(mapper(meta), child.map(_.map(mapper)))
-  override private[shapelse] def mapMetaOnly(mapper: A => A): OptionShape[A] = OptionShape(mapper(meta), child)
-
-  override private[shapelse] def combine[B, C](
-    that: Shape[B],
-    ifThisChildEmpty: => Option[A],
-    ifThatChildEmpty: => Option[B]
-  )(implicit combiner: Combiner[A, B, C]): Either[CombiningError, OptionShape[C]] = that match {
-    case OptionShape(thatMeta, thatChildOption) =>
-      for {
-        thisChild <- this.child
-          .orElse(ifThisChildEmpty.map(x => this.map(_ => x)))
-          .toRight(CombiningError.IfEmptyNotProvided(this))
-        thatChild <- thatChildOption
-          .orElse(ifThatChildEmpty.map(x => this.map(_ => x)))
-          .toRight(CombiningError.IfEmptyNotProvided(that))
-        combinedChild <- thisChild combine thatChild
-      } yield OptionShape(combiner(this.meta, thatMeta), Some(combinedChild))
-    case that => Left(CombiningError.IncompatibleShapes(this, that))
-  }
-}
-
 final case class ListShape[A](override val meta: A, childs: List[Shape[A]]) extends CompositeShape[A] {
 
   override def map[B](mapper: A => B): ListShape[B] = ListShape(mapper(meta), childs.map(_.map(mapper)))

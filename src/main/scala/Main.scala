@@ -32,7 +32,8 @@ object Main {
     val nameEncoder = namesShapeEncoder[Type]
     val typeNameEncoder = typeNamesShapeEncoder[Type]
 
-    val x = valueEncoder.combine(typeNameEncoder).encode(List(E(1), E(2)))
+    val x = valueShapeEncoder[Option[Int]].encode(Some(5))
+    println(x)
 
     implicit val prettyEnc: ShapeInstanceEncoder[Prettifier.Data, Type] = valueEncoder
       .combine(nameEncoder)

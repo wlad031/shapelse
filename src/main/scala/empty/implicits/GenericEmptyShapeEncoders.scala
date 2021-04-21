@@ -11,11 +11,6 @@ trait GenericEmptyShapeEncoders {
     tEncoder: Lazy[ShapeEncoder[Empty.type, T]]
   ): ShapeEncoder[Empty.type, List[T]] = ShapeEncoder.instance(ListShape(Empty, List(tEncoder.value.encode)))
 
-  implicit def emptyOptionShapeEncoder[T](
-    implicit
-    tEncoder: Lazy[ShapeEncoder[Empty.type, T]]
-  ): ShapeEncoder[Empty.type, Option[T]] = ShapeEncoder.instance(OptionShape(Empty, Some(tEncoder.value.encode)))
-
   implicit def genericEmptyProductShapeEncoder[A, Repr <: HList](
     implicit
     gen: Generic.Aux[A, Repr],
@@ -26,7 +21,6 @@ trait GenericEmptyShapeEncoders {
     implicit
     gen: Generic.Aux[A, Repr],
     reprEncoder: Lazy[CoproductShapeEncoder[Empty.type, Repr]],
-    notList: A <:!< List[_],
-    notOption: A <:!< Option[_]
+    notList: A <:!< List[_]
   ): CoproductShapeEncoder[Empty.type, A] = CoproductShapeEncoder.instance(reprEncoder.value.encode)
 }

@@ -8,14 +8,6 @@ import shapeless.{ LabelledGeneric, Lazy }
 trait GenericNamesShapeEncoders {
   import NameShapeEncoder.instance
 
-  implicit def optionNameShapeEncoder[A](
-    implicit
-    encoder: Lazy[NameShapeEncoder[A]]
-  ): NameShapeEncoder[Option[A]] = {
-    val shape = encoder.value.encode
-    instance(OptionShape(shape.meta, Some(shape)))
-  }
-
   implicit def listNameShapeEncoder[A](
     implicit
     encoder: Lazy[NameShapeEncoder[A]]

@@ -76,8 +76,6 @@ object Prettifier {
               sb.append(rp)
               sb.result()
 
-            case OptionShape(meta, shape) => ???
-
             case ListShape(meta, childs) =>
               if (meta.fieldName != "")
                 sb.append(cfg.modifiers.fieldName(meta.fieldName)).append(" ").append(eq).append(" ")
