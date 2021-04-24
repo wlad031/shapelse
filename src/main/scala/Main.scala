@@ -32,13 +32,15 @@ object Main {
     val nameEncoder = namesShapeEncoder[Type]
     val typeNameEncoder = typeNamesShapeEncoder[Type]
 
-    val x = valueShapeEncoder[Option[Int]].encode(Some(5))
+    val x = valueShapeEncoder[Either[String, Int]].encode(Right(5))
     println(x)
 
-    implicit val prettyEnc: ShapeInstanceEncoder[Prettifier.Data, Type] = valueEncoder
+    val encoder = valueEncoder
       .combine(nameEncoder)
       .combine(typeNameEncoder)
       .map({ case (v, s, s1) => Prettifier.Data(v, s, s1) })
+
+    implicit val prettyEnc: ShapeInstanceEncoder[Prettifier.Data, Type] = encoder
 
     implicit val prettifierConfig: Prettifier.Config = Prettifier.Config(
       modifiers = Prettifier.Modifiers(
@@ -50,6 +52,8 @@ object Main {
     )
     val prettifier = Prettifier.instance[Type]
 
+//    println(prettifier.prettify(typeNameEncoder.encode))
+//
     println(prettifier.prettify(List(E1(List(E(10), E(20))), a, E(1), ab, E(2), ab2, E(3), a, ab)))
 //    println(prettifier.prettify(List(E(1), E(2))))
 //    println(prettifier.render(List(3)))

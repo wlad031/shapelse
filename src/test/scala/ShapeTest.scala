@@ -112,6 +112,44 @@ class ShapeTest extends AnyFunSuite {
     )
   }
 
+  test("Combine on different product shapes should return an error") {
+    val shape1 = ProductShape(
+      Some(1),
+      List[Shape[Option[Int]]](
+        IntShape(Some(10)),
+        StringShape(Some(11)),
+        ByteShape(Some(12)),
+        LongShape(Some(13)),
+        BooleanShape(Some(14))
+      )
+    )
+    val shape2 = ProductShape[Option[String]](
+      Some("one"),
+      List[Shape[Option[String]]](
+        BooleanShape[Option[String]](Some("ten")),
+        FloatShape[Option[String]](Some("eleven")),
+        ShortShape[Option[String]](Some("twelve")),
+        DoubleShape[Option[String]](Some("thirteen"))
+      )
+    )
+    implicit val makeTuple: Combiner[Option[Int], Option[String], (Option[Int], Option[String])] =
+      (o1: Option[Int], o2: Option[String]) => (o1, o2)
+    val combined = shape1.combine(shape2)
+    assert(
+      combined === Left(
+          CombiningError.Multiple(
+            List(
+              CombiningError.IncompatibleShapes(IntShape(Some(10)), BooleanShape[Option[String]](Some("ten"))),
+              CombiningError.IncompatibleShapes(StringShape(Some(11)), FloatShape[Option[String]](Some("eleven"))),
+              CombiningError.IncompatibleShapes(ByteShape(Some(12)), ShortShape[Option[String]](Some("twelve"))),
+              CombiningError.IncompatibleShapes(LongShape(Some(13)), DoubleShape[Option[String]](Some("thirteen"))),
+              CombiningError.IfEmptyNotProvided(shape2)
+            )
+          )
+        )
+    )
+  }
+
   test("Combine on coproduct shapes should be successful") {
     val shape1 = CoproductShape(
       Some(1),
