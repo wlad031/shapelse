@@ -30,31 +30,17 @@ Currently, Shapelse supports the following types:
 
 ## Implemented shape encoders
 
-### Empty
-
-TBD
-
-### Names
-
-TBD
-
-### Typenames
-
-TBD
-
-### Annotations
-
-TBD
-
-### Values
-
-TBD
+- [Type names](https://github.com/wlad031/shapelse/wiki/Encoders#type-names)
+- [Names](https://github.com/wlad031/shapelse/wiki/Encoders#names)
+- [Annotations](https://github.com/wlad031/shapelse/wiki/Encoders#annotations)
+- [Values](https://github.com/wlad031/shapelse/wiki/Encoders#values)
+- [Empty](https://github.com/wlad031/shapelse/wiki/Encoders#empty)
 
 ## What is *Shape*?
 
 *Shape* is a simple algebraic data type:
 
-![shape](/docs/images/shape-adt.png?raw=true)
+![shape](https://github.com/wlad031/shapelse.wiki/images/shape-adt.png?raw=true)
 
 
 ## Example
