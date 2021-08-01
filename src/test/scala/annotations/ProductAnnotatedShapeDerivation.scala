@@ -156,4 +156,89 @@ class ProductAnnotatedShapeDerivation
     encoder.encode shouldBe expected
     forAll { (a: C) => encoder.encode(a) shouldBe expected }
   }
+
+  test("Annotated (ann1) shape for case class containing Option of Int should be derivable") {
+    @ann1(5) case class C(
+      @ann1(50) o: Option[Int]
+    )
+    implicit val arbitrary = implicitly[Arbitrary[C]]
+    val encoder = annotationShapeEncoder[ann1, C]
+    val expected =
+      ProductShape(
+        Some(ann1(5)),
+        List[Shape[Option[ann1]]](
+          CoproductShape(
+            Some(ann1(50)),
+            List(
+              ProductShape(None, List()),
+              ProductShape(
+                None,
+                List(IntShape(None))
+              )
+            )
+          )
+        )
+      )
+    encoder.encode shouldBe expected
+    forAll { (a: C) => encoder.encode(a) shouldBe expected }
+  }
+
+  test("Annotated (ann1) shape for case class containing different kinds of fields should be derivable") {
+    @ann1(1) case class C1(@ann1(2) k: Int)
+    case class C2(l: Long, d: Double)
+    @ann1(5) case class C(
+      @ann1(100) ls: List[Int],
+      optC1: Option[C1],
+      @ann1(45) optString: Option[String],
+      lsC2: List[C2]
+    )
+    implicit val arbitrary = implicitly[Arbitrary[C]]
+    val encoder = annotationShapeEncoder[ann1, C]
+    val expected =
+      ProductShape(
+        Some(ann1(5)),
+        List[Shape[Option[ann1]]](
+          ListShape(
+            Some(ann1(100)),
+            List(IntShape(None))
+          ),
+          CoproductShape(
+            None,
+            List(
+              ProductShape(None, List()),
+              ProductShape(
+                None,
+                List(
+                  ProductShape(
+                    Some(ann1(1)),
+                    List(IntShape(Some(ann1(2))))
+                  )
+                )
+              )
+            )
+          ),
+          CoproductShape(
+            Some(ann1(45)),
+            List(
+              ProductShape(None, List()),
+              ProductShape(
+                None,
+                List(StringShape(None))
+              )
+            )
+          ),
+          ListShape(
+            None,
+            List(
+              ProductShape(
+                None,
+                List(LongShape(None), DoubleShape(None))
+              )
+            )
+          )
+        )
+      )
+    encoder.encode shouldBe expected
+    forAll { (a: C) => encoder.encode(a) shouldBe expected }
+  }
 }

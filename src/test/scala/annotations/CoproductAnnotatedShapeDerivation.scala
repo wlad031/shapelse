@@ -73,4 +73,18 @@ class CoproductAnnotatedShapeDerivation
     encoder.encode shouldBe expected
     forAll { (a: T) => encoder.encode(a) shouldBe expected }
   }
+
+  test("Annotated(ann1) shape for Option of Int should be derivable") {
+    implicit val arbitrary = implicitly[Arbitrary[Option[Int]]]
+    val encoder = annotationShapeEncoder[ann1, Option[Int]]
+    val expected = CoproductShape(
+      None,
+      List[Shape[Option[ann1]]](
+        ProductShape(None, List()),
+        ProductShape(None, List(IntShape(None)))
+      )
+    )
+    encoder.encode shouldBe expected
+    forAll { (a: Option[Int]) => encoder.encode(a) shouldBe expected }
+  }
 }

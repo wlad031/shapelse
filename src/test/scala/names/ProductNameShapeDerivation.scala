@@ -41,6 +41,26 @@ class ProductNameShapeDerivation
     forAll { (a: C) => encoder.encode(a) shouldBe expected }
   }
 
+  test("Name shape for case class containing Option of Int should be derivable") {
+    case class C(o: Option[Int])
+    implicit val arbitrary = implicitly[Arbitrary[C]]
+    val encoder = namesShapeEncoder[C]
+    val expected = ProductShape(
+      "",
+      List(
+        CoproductShape(
+          "o",
+          List(
+            ProductShape("None", List()),
+            ProductShape("Some", List(IntShape("value")))
+          )
+        )
+      )
+    )
+    encoder.encode shouldBe expected
+    forAll { (a: C) => encoder.encode(a) shouldBe expected }
+  }
+
   test("Name shape for case class containing nested case class should be derivable") {
     case class C1(k: Int, b: Boolean)
     case class C(s: String, n: C1, i: Int)
