@@ -9,10 +9,8 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-  "com.chuusai"    %% "shapeless"    % "2.4.0-M1",
-  // TODO: get rid of this dep
-  "com.lihaoyi"                %% "fansi"                     % "0.2.10",
+  "org.scala-lang"             % "scala-reflect"              % scalaVersion.value,
+  "com.chuusai"                %% "shapeless"                 % "2.4.0-M1",
   "org.scalatest"              %% "scalatest"                 % "3.2.7" % "test",
   "org.scalatestplus"          %% "scalacheck-1-15"           % "3.2.5.0" % "test",
   "com.github.alexarchambault" %% "scalacheck-shapeless_1.14" % "1.2.5"
@@ -38,9 +36,12 @@ testOptions += Tests.Argument(
   args = List("-oSD")
 )
 
-scalacOptions in (Compile, doc) ++= Seq(
-  "-groups"
-)
+Compile / sources := Seq.empty
+Compile / publishArtifact := false
+
+packageDoc / publishArtifact := false
+
+doc / sources := Seq.empty
 
 githubOwner := "wlad031"
 githubActor := "wlad031"
